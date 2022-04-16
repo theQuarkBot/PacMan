@@ -40,34 +40,66 @@ class Board():
         self.wall_color = wall_color
         self.pellet_color = pellet_color
         
-    def update_check_wall(self, rect):
-        top_left     = (int((rect.top    + 1) / self.block_size), 
-                        int((rect.left   + 1) / self.block_size))
-        bottom_left  = (int((rect.bottom - 1) / self.block_size),
-                        int((rect.left   + 1) / self.block_size))
-        top_right    = (int((rect.top    + 1) / self.block_size),
-                        int((rect.right  - 1) / self.block_size))
-        bottom_right = (int((rect.bottom - 1) / self.block_size),
-                        int((rect.right  - 1) / self.block_size))
-
-        print(self.board[top_left[0]][top_left[1]])
+    def check_wall(self, rect):
+        top_left     = self.board \
+                        [int((rect.top    + 1) / self.block_size)] \
+                        [int((rect.left   + 1) / self.block_size)]
+        bottom_left  = self.board \
+                        [int((rect.bottom - 1) / self.block_size)] \
+                        [int((rect.left   + 1) / self.block_size)]
+        top_right    = self.board \
+                        [int((rect.top    + 1) / self.block_size)] \
+                        [int((rect.right  - 1) / self.block_size)]
+        bottom_right = self.board \
+                        [int((rect.bottom - 1) / self.block_size)] \
+                        [int((rect.right  - 1) / self.block_size)]
 
         # Check if colliding with wall
-        if self.board[top_left[0]][top_left[1]] == '%' or \
-           self.board[bottom_left[0]][bottom_left[1]] == '%' or \
-           self.board[top_right[0]][top_right[1]] == '%' or \
-           self.board[bottom_right[0]][bottom_right[1]] == '%':
-            print("true")
-            return True
+        if top_left == '%' or bottom_left == '%' or \
+           top_right == '%' or bottom_right == '%':
+            return False
+        return True
+
+    def check_pellet(self, rect):
+        offset = self.block_size/2.5
+        top_left     = (int((rect.top    + offset) / self.block_size), \
+                        int((rect.left   + offset) / self.block_size))
+        bottom_left  = (int((rect.bottom - offset) / self.block_size), \
+                        int((rect.left   + offset) / self.block_size))
+        top_right    = (int((rect.top    + offset) / self.block_size), \
+                        int((rect.right  - offset) / self.block_size))
+        bottom_right = (int((rect.bottom - offset) / self.block_size), \
+                        int((rect.right  - offset) / self.block_size))
 
         # Remove pellet if going over pellet
-        # if  self.board[top_left[0]][top_left[1]] == 'a' or \
-        #     self.board[bottom_left[0]][bottom_left[1]] == 'a' or \
-        #     self.board[top_right[0]][top_right[1]] == 'a' or \
-        #     self.board[bottom_right[0]][bottom_right[1]] == 'a':
-        #     self.board[x / self.block_size][y / self.block_size] = 'o'
-        return False
-        
+        if self.board[top_left[0]][top_left[1]] == 'a':
+            self.board[top_left[0]][top_left[1]] = 'o'
+            return 1
+        if self.board[bottom_left[0]][bottom_left[1]] == 'a':
+            self.board[bottom_left[0]][bottom_left[1]] = 'o'
+            return 1
+        if self.board[top_right[0]][top_right[1]] == 'a':
+            self.board[top_right[0]][top_right[1]] = 'o'
+            return 1
+        if self.board[bottom_right[0]][bottom_right[1]] == 'a':
+            self.board[bottom_right[0]][bottom_right[1]] = 'o'
+            return 1
+
+        if self.board[top_left[0]][top_left[1]] == 's':
+            self.board[top_left[0]][top_left[1]] = 'o'
+            return 5
+        if self.board[bottom_left[0]][bottom_left[1]] == 's':
+            self.board[bottom_left[0]][bottom_left[1]] = 'o'
+            return 5
+        if self.board[top_right[0]][top_right[1]] == 's':
+            self.board[top_right[0]][top_right[1]] = 'o'
+            return 5
+        if self.board[bottom_right[0]][bottom_right[1]] == 's':
+            self.board[bottom_right[0]][bottom_right[1]] = 'o'
+            return 5
+
+        return 0
+
     def run(self):
         bs = self.block_size
         scr = self.scr

@@ -86,16 +86,18 @@ class Pacman:
         elif self.pressed_keys[self.RIGHT]:
             new_vector = (PACMAN_SPEED, 0)
             self.imageC = self.imageR
-
+ 
         new_rect = self.rect.move(new_vector[0], new_vector[1])
         
         # Check if rect is in moveable area
             # Yes -> update pos
             # No -> Don't update( and stop?)
 
-        can_move = self.board.update_check_wall(new_rect)
-        if not can_move:
-            print(new_vector)
+        can_move = self.board.check_wall(new_rect)
+        point = self.board.check_pellet(new_rect)
+        
+        if can_move:
+            #print(new_vector)
             self.rect.move_ip(new_vector[0], new_vector[1])
 
         # # Change position according to key_press
