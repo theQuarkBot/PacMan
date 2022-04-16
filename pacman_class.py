@@ -2,20 +2,6 @@
 
 import os, sys, random
 import pygame
-# from pygame.locals import (
-#     RLEACCEL,
-#     K_UP,
-#     K_DOWN,
-#     K_LEFT,
-#     K_RIGHT,
-#     K_ESCAPE,
-#     KEYDOWN,
-#     QUIT,
-#     K_w,
-#     K_a,
-#     K_s,
-#     K_d,
-# )
 from thread_safe_classes import *
 from settings import *
 vec = pygame.math.Vector2
@@ -120,6 +106,9 @@ def main():
     player1 = Player(ARROW_CONTROLS, player_update_switch, finished_updating, threads)
     players.append(player1)
 
+    player2 = Player(WASD_CONTROLS, player_update_switch, finished_updating, threads)
+    players.append(player2)
+
     running = True
 
     while running:
@@ -135,12 +124,16 @@ def main():
         finished_updating.release()
 
         screen.fill((0, 0, 0))
-        screen.blit(player1.imageC, player1.rect)
+
+        for player in players:
+            screen.blit(player.imageC, player.rect)
 
         pygame.display.flip()
 
         pressed_keys = pygame.key.get_pressed()
-        player1.update_event(pressed_keys)
+
+        for player in players:
+            player.update_event(pressed_keys)
 
         clock.tick(FPS)
     pygame.quit()
