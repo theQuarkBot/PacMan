@@ -1,18 +1,24 @@
 #!/usr/bin/python3
 
+from distutils.dep_util import newer
 import os, sys, random
 import pygame
-from thread_safe_classes import *
+import threading
 from settings import *
-vec = pygame.math.Vector2
+from thread_safe_classes import Lightswitch
+from board import Board
 
 
-class Player:
-    def __init__(self, controls, update_switch, finished_updating, all_threads):
+class Pacman:
+    def __init__(self, controls, update_switch, finished_updating, all_threads,\
+                 board, start_pos):
         # Initialize sprite image
         self.__init_sprites__()
         self.imageC = self.imageR
         self.rect = self.imageC.get_rect()
+
+        self.board = board
+        self.rect.topleft = (9 * BLOCKSIZE, 16 * BLOCKSIZE) #start_pos
 
         (self.UP, self.DOWN, self.LEFT, self.RIGHT) = controls
 
@@ -38,7 +44,8 @@ class Player:
             "bin/large_sprites/pac_right.png").convert()
 
         self.size = self.imageU.get_size()
-        self.__sprite_dimensions__ = (int(self.size[0]/3), int(self.size[1]/3))
+        self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
+        
         self.imageU = pygame.transform.scale(
             self.imageU, self.__sprite_dimensions__)
         self.imageD = pygame.transform.scale(
@@ -66,28 +73,56 @@ class Player:
         self.can_update.release()
 
     def __update_pos__(self):
+        new_vector = (0, 0)
         if self.pressed_keys[self.UP]:
-            self.rect.move_ip(0, -PACMAN_SPEED)
+            new_vector = (0, -PACMAN_SPEED)
             self.imageC = self.imageU
         elif self.pressed_keys[self.DOWN]:
-            self.rect.move_ip(0, PACMAN_SPEED)
+            new_vector = (0, PACMAN_SPEED)
             self.imageC = self.imageD
         elif self.pressed_keys[self.LEFT]:
-            self.rect.move_ip(-PACMAN_SPEED, 0)
+            new_vector = (-PACMAN_SPEED, 0)
             self.imageC = self.imageL
         elif self.pressed_keys[self.RIGHT]:
-            self.rect.move_ip(PACMAN_SPEED, 0)
+            new_vector = (PACMAN_SPEED, 0)
             self.imageC = self.imageR
 
+        new_rect = self.rect.move(new_vector[0], new_vector[1])
+        
+        # Check if rect is in moveable area
+            # Yes -> update pos
+            # No -> Don't update( and stop?)
+
+        can_move = self.board.update_check_wall(new_rect)
+        if not can_move:
+            print(new_vector)
+            self.rect.move_ip(new_vector[0], new_vector[1])
+
+        # # Change position according to key_press
+        # if self.pressed_keys[self.UP]:
+        #     self.rect.move_ip(0, -PACMAN_SPEED)
+        #     self.imageC = self.imageU
+        # elif self.pressed_keys[self.DOWN]:
+        #     self.rect.move_ip(0, PACMAN_SPEED)
+        #     self.imageC = self.imageD
+        # elif self.pressed_keys[self.LEFT]:
+        #     self.rect.move_ip(-PACMAN_SPEED, 0)
+        #     self.imageC = self.imageL
+        # elif self.pressed_keys[self.RIGHT]:
+        #     self.rect.move_ip(PACMAN_SPEED, 0)
+        #     self.imageC = self.imageR
+
         # Ensure pacman stays in bounds.
-        if self.rect.left < 0:
-            self.rect.left = 0
-        if self.rect.right > WIDTH:
-            self.rect.right = WIDTH
-        if self.rect.top <= 0:
-            self.rect.top = 0
-        if self.rect.bottom >= HEIGHT:
-            self.rect.bottom = HEIGHT
+        if new_rect.left < 0:
+            new_rect.left = 0
+        if new_rect.right > WIDTH:
+            new_rect.right = WIDTH
+        if new_rect.top <= 0:
+            new_rect.top = 0
+        if new_rect.bottom >= HEIGHT:
+            new_rect.bottom = HEIGHT
+
+        # self.rect = new_rect
 
         self.update_switch.unlock(self.finished_updating)
 
@@ -103,10 +138,10 @@ def main():
     threads = []
     players = []
 
-    player1 = Player(ARROW_CONTROLS, player_update_switch, finished_updating, threads)
+    player1 = Pacman(ARROW_CONTROLS, player_update_switch, finished_updating, threads)
     players.append(player1)
 
-    player2 = Player(WASD_CONTROLS, player_update_switch, finished_updating, threads)
+    player2 = Pacman(WASD_CONTROLS, player_update_switch, finished_updating, threads)
     players.append(player2)
 
     running = True

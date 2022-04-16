@@ -1,4 +1,5 @@
 import pygame  
+from settings import *
 
 # % - wall
 # - - gate
@@ -27,24 +28,49 @@ BOARD = [
     ['%', 'a', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', 'a', '%'],
     ['%', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 's', '%'],
     ['%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%']
-
 ]
 
 class Board():
 
-    def __init__(self, board, block_size=30, \
-            wall_color=(0,0,255), pellet_color=(255, 255, 0)):
+    def __init__(self, scr, board=BOARD, block_size=BLOCKSIZE, \
+            wall_color=WALL_COLOR, pellet_color=PELLET_COLOR):
+        self.scr = scr
         self.board = board
         self.block_size = block_size
         self.wall_color = wall_color
         self.pellet_color = pellet_color
+        
+    def update_check_wall(self, rect):
+        top_left     = (int((rect.top    + 1) / self.block_size), 
+                        int((rect.left   + 1) / self.block_size))
+        bottom_left  = (int((rect.bottom - 1) / self.block_size),
+                        int((rect.left   + 1) / self.block_size))
+        top_right    = (int((rect.top    + 1) / self.block_size),
+                        int((rect.right  - 1) / self.block_size))
+        bottom_right = (int((rect.bottom - 1) / self.block_size),
+                        int((rect.right  - 1) / self.block_size))
 
+        print(self.board[top_left[0]][top_left[1]])
+
+        # Check if colliding with wall
+        if self.board[top_left[0]][top_left[1]] == '%' or \
+           self.board[bottom_left[0]][bottom_left[1]] == '%' or \
+           self.board[top_right[0]][top_right[1]] == '%' or \
+           self.board[bottom_right[0]][bottom_right[1]] == '%':
+            print("true")
+            return True
+
+        # Remove pellet if going over pellet
+        # if  self.board[top_left[0]][top_left[1]] == 'a' or \
+        #     self.board[bottom_left[0]][bottom_left[1]] == 'a' or \
+        #     self.board[top_right[0]][top_right[1]] == 'a' or \
+        #     self.board[bottom_right[0]][bottom_right[1]] == 'a':
+        #     self.board[x / self.block_size][y / self.block_size] = 'o'
+        return False
+        
     def run(self):
-        pygame.init()  
         bs = self.block_size
-        scr = pygame.display.set_mode((len(self.board[0]) * bs, \
-                                        len(self.board) * bs))  
-        pygame.display.set_caption('Pac-Man')
+        scr = self.scr
         w_thick = 0.3 * bs
         bar_len = 0.5 * bs
         w_displ = 0.35 * bs
@@ -112,17 +138,8 @@ class Board():
                 j += 1
             i += 1
 
-        pygame.display.flip()  
-
-        running = True
-        while running: 
-            for event in pygame.event.get(): 
-                if event.type == pygame.QUIT: 
-                    running = False
-        pygame.quit() 
-
 if __name__ == '__main__':
-    b = Board(BOARD)
+    b = Board()
     b.run()
 
 
