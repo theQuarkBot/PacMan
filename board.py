@@ -7,6 +7,7 @@ from settings import *
 # a - pellet
 # s - super pellet
 BOARD = [
+    ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o'],
     ['%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%'],
     ['%', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 's', '%'],
     ['%', 'a', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', 'a', '%'],
@@ -23,7 +24,7 @@ BOARD = [
     ['%', '%', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', '%', '%'],
     ['%', 'a', 'a', 'a', 's', '%', 'a', 'a', 'a', '%', 'a', 'a', 'a', '%', 's', 'a', 'a', 'a', '%'],
     ['%', 'a', '%', '%', 'a', '%', 'a', '%', '%', '%', '%', '%', 'a', '%', 'a', '%', '%', 'a', '%'],
-    ['%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%'],
+    ['%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'o', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%'],
     ['%', 'a', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', 'a', '%'],
     ['%', 'a', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', 'a', '%'],
     ['%', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 's', '%'],
@@ -39,6 +40,7 @@ class Board():
         self.block_size = block_size
         self.wall_color = wall_color
         self.pellet_color = pellet_color
+        self.score = 0
         
     def check_wall(self, rect):
         top_left     = self.board \
@@ -61,7 +63,7 @@ class Board():
         return True
 
     def check_pellet(self, rect):
-        offset = self.block_size/2.5
+        offset = self.block_size/2
         top_left     = (int((rect.top    + offset) / self.block_size), \
                         int((rect.left   + offset) / self.block_size))
         bottom_left  = (int((rect.bottom - offset) / self.block_size), \
@@ -74,33 +76,32 @@ class Board():
         # Remove pellet if going over pellet
         if self.board[top_left[0]][top_left[1]] == 'a':
             self.board[top_left[0]][top_left[1]] = 'o'
-            return 1
+            self.score += 1
         if self.board[bottom_left[0]][bottom_left[1]] == 'a':
             self.board[bottom_left[0]][bottom_left[1]] = 'o'
-            return 1
+            self.score += 1
         if self.board[top_right[0]][top_right[1]] == 'a':
             self.board[top_right[0]][top_right[1]] = 'o'
-            return 1
+            self.score += 1
         if self.board[bottom_right[0]][bottom_right[1]] == 'a':
             self.board[bottom_right[0]][bottom_right[1]] = 'o'
-            return 1
+            self.score += 1
 
         if self.board[top_left[0]][top_left[1]] == 's':
             self.board[top_left[0]][top_left[1]] = 'o'
-            return 5
+            self.score += 5
         if self.board[bottom_left[0]][bottom_left[1]] == 's':
             self.board[bottom_left[0]][bottom_left[1]] = 'o'
-            return 5
+            self.score += 5
         if self.board[top_right[0]][top_right[1]] == 's':
             self.board[top_right[0]][top_right[1]] = 'o'
-            return 5
+            self.score += 5
         if self.board[bottom_right[0]][bottom_right[1]] == 's':
             self.board[bottom_right[0]][bottom_right[1]] = 'o'
-            return 5
-
-        return 0
+            self.score += 5
 
     def run(self):
+
         bs = self.block_size
         scr = self.scr
         w_thick = 0.3 * bs
@@ -169,6 +170,11 @@ class Board():
                         pygame.Rect(j * bs, i * bs + 0.45 * bs, bs, 0.1 * bs))
                 j += 1
             i += 1
+        
+        pygame.font.init()
+        font = pygame.font.Font("bin/font/game over.ttf", 36)
+        text=font.render("Score: "+str(self.score)+"/"+str(MAX_SCORE), True, RED)
+        scr.blit(text, [10, 10])
 
 if __name__ == '__main__':
     b = Board()

@@ -18,7 +18,7 @@ class Pacman:
         self.rect = self.imageC.get_rect()
 
         self.board = board
-        self.rect.topleft = (9 * BLOCKSIZE, 16 * BLOCKSIZE) #start_pos
+        self.rect.topleft = (9 * BLOCKSIZE, 17 * BLOCKSIZE) #start_pos
 
         (self.UP, self.DOWN, self.LEFT, self.RIGHT) = controls
 
@@ -35,13 +35,13 @@ class Pacman:
 
     def __init_sprites__(self):
         self.imageU = pygame.image.load(
-            "bin/large_sprites/pac_up.png").convert()
+            "bin/large_sprites/pac_up.png").convert_alpha()
         self.imageD = pygame.image.load(
-            "bin/large_sprites/pac_down.png").convert()
+            "bin/large_sprites/pac_down.png").convert_alpha()
         self.imageL = pygame.image.load(
-            "bin/large_sprites/pac_left.png").convert()
+            "bin/large_sprites/pac_left.png").convert_alpha()
         self.imageR = pygame.image.load(
-            "bin/large_sprites/pac_right.png").convert()
+            "bin/large_sprites/pac_right.png").convert_alpha()
 
         self.size = self.imageU.get_size()
         self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
@@ -94,7 +94,7 @@ class Pacman:
             # No -> Don't update( and stop?)
 
         can_move = self.board.check_wall(new_rect)
-        point = self.board.check_pellet(new_rect)
+        self.board.check_pellet(new_rect)
         
         if can_move:
             #print(new_vector)
