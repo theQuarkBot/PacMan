@@ -50,6 +50,8 @@ def main():
                     player.stop()
         if pygame.sprite.spritecollideany(player1, enemies):
             running = False
+            for player in players:
+                    player.stop()
         # Ensure that all players are not currently updating
         finished_updating.acquire()
         finished_updating.release()
