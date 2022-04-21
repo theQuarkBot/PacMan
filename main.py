@@ -21,7 +21,7 @@ def main():
     finished_updating = threading.Semaphore(1)
 
 
-    # Create two players and append them to the thread an player list
+    # Create a list of players
     threads = []
     players = []
 
@@ -52,6 +52,7 @@ def main():
             running = False
             for player in players:
                     player.stop()
+
         # Ensure that all players are not currently updating
         finished_updating.acquire()
         finished_updating.release()

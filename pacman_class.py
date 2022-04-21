@@ -155,13 +155,13 @@ class Ghost:
 
     def __init_sprites__(self):
         self.imageU = pygame.image.load(
-            "bin/sprites/ghost1.gif").convert_alpha()
+            "bin/sprites/ghost-1.gif").convert_alpha()
         self.imageD = pygame.image.load(
-            "bin/sprites/ghost1.gif").convert_alpha()
+            "bin/sprites/ghost-1.gif").convert_alpha()
         self.imageL = pygame.image.load(
-            "bin/sprites/ghost1.gif").convert_alpha()
+            "bin/sprites/ghost-1.gif").convert_alpha()
         self.imageR = pygame.image.load(
-            "bin/sprites/ghost1.gif").convert_alpha()
+            "bin/sprites/ghost-1.gif").convert_alpha()
 
         self.size = self.imageU.get_size()
         self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
