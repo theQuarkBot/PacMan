@@ -3,8 +3,9 @@ import pygame
 import threading
 from thread_safe_classes import Lightswitch
 from settings import *
-from pacman_class import Pacman, Ghost
+# from pacman_class import Pacman, Ghost
 from board import Board
+from player import Character
 
 def main():
     pygame.init()
@@ -26,15 +27,18 @@ def main():
     players = []
 
     #The Start positions are not used currently
-    player1 = Pacman(ARROW_CONTROLS, player_update_switch,
+    player0 = Character(ARROW_CONTROLS, player_update_switch,
                      finished_updating, threads, board, PACMAN_START_POS)
-    player2 = Ghost(WASD_CONTROLS, player_update_switch,
-                      finished_updating, threads, board, GHOST_START_POS)
-    players.append(player1)
-    players.append(player2)
+    # player1 = Pacman(ARROW_CONTROLS, player_update_switch,
+    #                  finished_updating, threads, board, PACMAN_START_POS)
+    # player2 = Ghost(WASD_CONTROLS, player_update_switch,
+    #                   finished_updating, threads, board, GHOST_START_POS)
+    players.append(player0)
+    # players.append(player1)
+    # players.append(player2)
     
     enemies = list()
-    enemies.append(player2)
+    # enemies.append(player2)
 
 
     running = True
@@ -48,10 +52,10 @@ def main():
 
                 for player in players:
                     player.stop()
-        if pygame.sprite.spritecollideany(player1, enemies):
-            running = False
-            for player in players:
-                    player.stop()
+        # if pygame.sprite.spritecollideany(player1, enemies):
+        #     running = False
+        #     for player in players:
+        #             player.stop()
 
         # Ensure that all players are not currently updating
         finished_updating.acquire()
@@ -69,7 +73,7 @@ def main():
         for player in players:
             player.update_event(pressed_keys)
 
-        
+
 
         clock.tick(FPS)
     pygame.quit()
