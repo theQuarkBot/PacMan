@@ -3,9 +3,9 @@ import pygame
 import threading
 from thread_safe_classes import Lightswitch
 from settings import *
-# from pacman_class import Pacman, Ghost
+from pacman_class import Pacman, Ghost
 from board import Board
-from player import Character
+from player import PacmanTesting, GhostTesting
 
 def main():
     pygame.init()
@@ -24,22 +24,24 @@ def main():
 
     # Create a list of players
     threads = []
+    pacmans = []
+    ghosts = []
+
     players = []
 
     #The Start positions are not used currently
-    player0 = Character(ARROW_CONTROLS, player_update_switch,
-                     finished_updating, threads, board, PACMAN_START_POS)
-    # player1 = Pacman(ARROW_CONTROLS, player_update_switch,
+    # pacman1 = PacmanTesting(ARROW_CONTROLS, player_update_switch,
     #                  finished_updating, threads, board, PACMAN_START_POS)
-    # player2 = Ghost(WASD_CONTROLS, player_update_switch,
+    # ghost1 = GhostTesting(WASD_CONTROLS, player_update_switch,
     #                   finished_updating, threads, board, GHOST_START_POS)
-    players.append(player0)
-    # players.append(player1)
-    # players.append(player2)
-    
-    enemies = list()
-    # enemies.append(player2)
+    pacman1 = Pacman(ARROW_CONTROLS, player_update_switch,
+                     finished_updating, threads, board, PACMAN_START_POS)
+    ghost1 = Ghost(WASD_CONTROLS, player_update_switch,
+                      finished_updating, threads, board, GHOST_START_POS)
+    pacmans.append(pacman1)
+    ghosts.append(ghost1)
 
+    players = pacmans + ghosts
 
     running = True
 
@@ -52,10 +54,10 @@ def main():
 
                 for player in players:
                     player.stop()
-        # if pygame.sprite.spritecollideany(player1, enemies):
-        #     running = False
-        #     for player in players:
-        #             player.stop()
+        if pygame.sprite.spritecollideany(pacmans[0], ghosts):
+            running = False
+            for player in players:
+                    player.stop()
 
         # Ensure that all players are not currently updating
         finished_updating.acquire()
@@ -72,8 +74,6 @@ def main():
         pressed_keys = pygame.key.get_pressed()
         for player in players:
             player.update_event(pressed_keys)
-
-
 
         clock.tick(FPS)
     pygame.quit()

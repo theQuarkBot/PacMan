@@ -8,7 +8,7 @@ from settings import *
 from thread_safe_classes import Lightswitch
 from board import Board
 
-class Character:
+class PacmanTesting:
     def __init__(self, controls, update_switch, finished_updating, all_threads,\
                  board, start_pos):
         # Initialize sprite image
@@ -18,7 +18,7 @@ class Character:
         self.rect = self.imageC.get_rect()
 
         self.board = board
-        self.rect.topleft = (9 * BLOCKSIZE, 17 * BLOCKSIZE) #start_pos
+        self.rect.topleft = start_pos
 
         # Initialize movement buffer
         self.cur_vector = pygame.Vector2((0, 0))
@@ -42,15 +42,14 @@ class Character:
 
     def __init_sprites__(self):
         self.imageU = pygame.image.load(
-            "bin/large_sprites/pac_up.png").convert_alpha()
+            "bin/sprites/pacman-u-4.gif").convert_alpha()
         self.imageD = pygame.image.load(
-            "bin/large_sprites/pac_down.png").convert_alpha()
+            "bin/sprites/pacman-d-4.gif").convert_alpha()
         self.imageL = pygame.image.load(
-            "bin/large_sprites/pac_left.png").convert_alpha()
+            "bin/sprites/pacman-l-4.gif").convert_alpha()
         self.imageR = pygame.image.load(
-            "bin/large_sprites/pac_right.png").convert_alpha()
+            "bin/sprites/pacman-r-4.gif").convert_alpha()
 
-        self.size = self.imageU.get_size()
         self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
         
         self.imageU = pygame.transform.scale(
@@ -96,70 +95,78 @@ class Character:
 
         # Determine whether it can go in the new direction
         new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
+        self.__try_teleport_through_tunnel__(new_rect)
         can_move = self.board.check_wall(new_rect)
 
-        # If not, keep old vector
+        # Update the current move if the new move is possible
         if can_move:
             self.cur_vector.xy = self.next_vector.xy
             self.imageC = self.imageN
-        else:
+        # Otherwise try moving in the old direction
+        else: 
             new_rect = self.rect.move(self.cur_vector.x, self.cur_vector.y)
+            self.__try_teleport_through_tunnel__(new_rect)
             can_move = self.board.check_wall(new_rect)
 
+        # Update position
         if can_move:
             self.board.check_pellet(new_rect)
-            self.rect.move_ip(self.cur_vector.x, self.cur_vector.y)
-
-        # Ensure pacman stays in bounds.
-        if new_rect.left < 0:
-            new_rect.left = 0
-        if new_rect.right >= WIDTH:
-            new_rect.right = WIDTH - 1
-        if new_rect.top <= 0:
-            new_rect.top = 0
-        if new_rect.bottom >= HEIGHT:
-            new_rect.bottom = HEIGHT - 1
+            self.rect.topleft = new_rect.topleft
 
         self.update_switch.unlock(self.finished_updating)
 
+    def __try_teleport_through_tunnel__(self, rect):
+        if rect.left < 0:
+            rect.right = WIDTH - 2
+        if rect.right >= WIDTH:
+            rect.left = 0
+        if rect.top <= 0:
+            rect.bottom = HEIGHT - 2
+        if rect.bottom >= HEIGHT:
+            rect.top = 0
 
-class Ghost:
-    def __init__(self, controls, update_switch, finished_updating, all_threads,\
+
+class GhostTesting:
+    def __init__(self, controls, update_switch, finished_updating, all_threads,
                  board, start_pos):
         # Initialize sprite image
         self.__init_sprites__()
         self.imageC = self.imageR
+        self.imageN = self.imageC
         self.rect = self.imageC.get_rect()
 
         self.board = board
-        self.rect.topleft = (9 * BLOCKSIZE, 11 * BLOCKSIZE) #start_pos
+        self.rect.topleft = start_pos
 
+        # Initialize movement buffer
+        self.cur_vector = pygame.Vector2((0, 0))
+        self.next_vector = pygame.Vector2((0, 0))
+
+        # Set controls
         (self.UP, self.DOWN, self.LEFT, self.RIGHT) = controls
 
+        # Update synchronization variables
         self.can_update = threading.Semaphore(0)
         self.update_switch = update_switch
         self.finished_updating = finished_updating
-
         self.mutex = threading.Semaphore(1)
+
         self.running = True
 
+        # Start movement thread
         self.thread = threading.Thread(target=self.__run__)
         all_threads.append(self.thread)
         self.thread.start()
 
     def __init_sprites__(self):
         self.imageU = pygame.image.load(
-            "bin/sprites/ghost1.gif").convert_alpha()
-        self.imageD = pygame.image.load(
-            "bin/sprites/ghost1.gif").convert_alpha()
-        self.imageL = pygame.image.load(
-            "bin/sprites/ghost1.gif").convert_alpha()
-        self.imageR = pygame.image.load(
-            "bin/sprites/ghost1.gif").convert_alpha()
+            "bin/sprites/ghost-4.gif").convert_alpha()
+        self.imageD = self.imageU
+        self.imageL = self.imageU
+        self.imageR = self.imageU
 
-        self.size = self.imageU.get_size()
         self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
-        
+
         self.imageU = pygame.transform.scale(
             self.imageU, self.__sprite_dimensions__)
         self.imageD = pygame.transform.scale(
@@ -187,60 +194,50 @@ class Ghost:
         self.can_update.release()
 
     def __update_pos__(self):
-        new_vector = (0, 0)
+        # Save the keypresses and next image for next velocity change
         if self.pressed_keys[self.UP]:
-            new_vector = (0, -PACMAN_SPEED)
-            self.imageC = self.imageU
+            self.next_vector.xy = 0, -PACMAN_SPEED
+            self.imageN = self.imageU
         elif self.pressed_keys[self.DOWN]:
-            new_vector = (0, PACMAN_SPEED)
-            self.imageC = self.imageD
+            self.next_vector.xy = 0, PACMAN_SPEED
+            self.imageN = self.imageD
         elif self.pressed_keys[self.LEFT]:
-            new_vector = (-PACMAN_SPEED, 0)
-            self.imageC = self.imageL
+            self.next_vector.xy = -PACMAN_SPEED, 0
+            self.imageN = self.imageL
         elif self.pressed_keys[self.RIGHT]:
-            new_vector = (PACMAN_SPEED, 0)
-            self.imageC = self.imageR
- 
-        new_rect = self.rect.move(new_vector[0], new_vector[1])
-        
-        # Check if rect is in moveable area
-            # Yes -> update pos
-            # No -> Don't update( and stop?)
+            self.next_vector.xy = PACMAN_SPEED, 0
+            self.imageN = self.imageR
 
+        # Determine whether it can go in the new direction
+        new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
+        self.__try_teleport_through_tunnel__(new_rect)
         can_move = self.board.check_wall(new_rect)
-        #self.board.check_pellet(new_rect)
-        
+
+        # Update the current move if the new move is possible
         if can_move:
-            #print(new_vector)
-            self.rect.move_ip(new_vector[0], new_vector[1])
+            self.cur_vector.xy = self.next_vector.xy
+            self.imageC = self.imageN
+        # Otherwise try moving in the old direction
+        else:
+            new_rect = self.rect.move(self.cur_vector.x, self.cur_vector.y)
+            self.__try_teleport_through_tunnel__(new_rect)
+            can_move = self.board.check_wall(new_rect)
 
-        # # Change position according to key_press
-        # if self.pressed_keys[self.UP]:
-        #     self.rect.move_ip(0, -PACMAN_SPEED)
-        #     self.imageC = self.imageU
-        # elif self.pressed_keys[self.DOWN]:
-        #     self.rect.move_ip(0, PACMAN_SPEED)
-        #     self.imageC = self.imageD
-        # elif self.pressed_keys[self.LEFT]:
-        #     self.rect.move_ip(-PACMAN_SPEED, 0)
-        #     self.imageC = self.imageL
-        # elif self.pressed_keys[self.RIGHT]:
-        #     self.rect.move_ip(PACMAN_SPEED, 0)
-        #     self.imageC = self.imageR
-
-        # Ensure pacman stays in bounds.
-        if new_rect.left < 0:
-            new_rect.left = 0
-        if new_rect.right > WIDTH:
-            new_rect.right = WIDTH
-        if new_rect.top <= 0:
-            new_rect.top = 0
-        if new_rect.bottom >= HEIGHT:
-            new_rect.bottom = HEIGHT
-
-        # self.rect = new_rect
+        # Update position
+        if can_move:
+            self.rect.topleft = new_rect.topleft
 
         self.update_switch.unlock(self.finished_updating)
+
+    def __try_teleport_through_tunnel__(self, rect):
+        if rect.left < 0:
+            rect.right = WIDTH - 2
+        if rect.right >= WIDTH:
+            rect.left = 0
+        if rect.top <= 0:
+            rect.bottom = HEIGHT - 2
+        if rect.bottom >= HEIGHT:
+            rect.top = 0
 
 
 def main():
