@@ -81,6 +81,7 @@ def main():
             player.update_event(pressed_keys)
 
         clock.tick(FPS)
+    gameOver(screen, board)
     pygame.quit()
 
     for thread in threads:

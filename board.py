@@ -42,6 +42,9 @@ class Board():
         self.pellet_color = pellet_color
         self.score = 0
         self.blink = 0
+
+    def get_score(self):
+        return self.score
         
     def check_wall(self, rect):
         top_left     = self.board \
