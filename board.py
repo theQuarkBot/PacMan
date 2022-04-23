@@ -42,7 +42,11 @@ class Board():
         self.pellet_color = pellet_color
         self.score = 0
         self.blink = 0
+        self.lives = 3
 
+    def minus_lives(self):
+        self.lives -= 1
+        
     def get_score(self):
         return self.score
         
@@ -179,10 +183,11 @@ class Board():
             self.blink = 0
         self.blink += 1
         font = pygame.font.Font("bin/font/game over.ttf", 36)
-        text=font.render("Score: "+str(self.score)+"/"+str(MAX_SCORE),\
+        score_text = font.render("Score: "+str(self.score)+"/"+str(MAX_SCORE),\
                             True, RED)
-        scr.blit(text, [10, 10])
-
+        scr.blit(score_text, [10, 10])
+        lives_text = font.render("Lives: "+str(self.lives), True, RED)
+        scr.blit(lives_text, [scr.get_width() - lives_text.get_size()[0] - 10, 10])
 if __name__ == '__main__':
     b = Board()
     b.run()

@@ -18,7 +18,7 @@ def main():
 
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
-    startScreen(screen)
+    player_num = startScreen(screen)
 
     board = Board(screen)
 
