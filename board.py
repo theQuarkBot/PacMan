@@ -41,6 +41,7 @@ class Board():
         self.wall_color = wall_color
         self.pellet_color = pellet_color
         self.score = 0
+        self.blink = 0
         
     def check_wall(self, rect):
         top_left     = self.board \
@@ -163,17 +164,20 @@ class Board():
                     pos = (j * bs + bs/2 , i * bs + bs/2)
                     pygame.draw.circle(scr, self.pellet_color, pos, bs/8)
                 elif blocks == 's':
-                    pos = (j * bs + bs/2 , i * bs + bs/2)
-                    pygame.draw.circle(scr, self.pellet_color, pos, bs/4)
+                    if self.blink > 15:
+                        pos = (j * bs + bs/2 , i * bs + bs/2)
+                        pygame.draw.circle(scr, self.pellet_color, pos, bs/4)
                 elif blocks == '-':
                     pygame.draw.rect(scr, self.pellet_color, \
                         pygame.Rect(j * bs, i * bs + 0.45 * bs, bs, 0.1 * bs))
                 j += 1
             i += 1
-        
-        pygame.font.init()
+        if self.blink == 30:
+            self.blink = 0
+        self.blink += 1
         font = pygame.font.Font("bin/font/game over.ttf", 36)
-        text=font.render("Score: "+str(self.score)+"/"+str(MAX_SCORE), True, RED)
+        text=font.render("Score: "+str(self.score)+"/"+str(MAX_SCORE),\
+                            True, RED)
         scr.blit(text, [10, 10])
 
 if __name__ == '__main__':

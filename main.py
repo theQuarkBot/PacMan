@@ -6,15 +6,20 @@ from settings import *
 from pacman_class import Pacman, Ghost
 from board import Board
 from player import PacmanTesting, GhostTesting
+from screens import *
 
 def main():
     pygame.init()
+    pygame.font.init()
+
     pygame.display.set_caption('Pac-Man')
 
     clock = pygame.time.Clock()
 
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
-    
+
+    startScreen(screen)
+
     board = Board(screen)
 
     # Mutex and ligthswitch to support 
