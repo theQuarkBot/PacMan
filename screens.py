@@ -65,26 +65,21 @@ def startScreen(scr):
         scr.blit(enter, enter_rect)
         pygame.display.update() 
 
-def pacman_win(scr, board):
-    width = scr.get_width() 
-    height = scr.get_height()
-    fontTitle = pygame.font.Font("bin/font/game over.ttf", 100)
-    fontText = pygame.font.Font("bin/font/game over.ttf", 30)
-
-    result = fontTitle.render('RESULTS', True, PELLET_COLOR)
-
-def gameOver(scr, board):
+def gameOver(scr, board, winner="Ghost"):
     width = scr.get_width() 
     height = scr.get_height() 
     fontTitle = pygame.font.Font("bin/font/game over.ttf", 100)
-    fontText = pygame.font.Font("bin/font/game over.ttf", 30)
+    fontText = pygame.font.Font("bin/font/game over.ttf", 50)
 
-    gameOver = fontTitle.render('Game Over', True, PELLET_COLOR)
+    gameOver = fontTitle.render("Game Over", True, PELLET_COLOR)
     gameOver_rect = gameOver.get_rect(center=(width/2, height/2))
 
-    point = fontText.render("Pac-man got " + str(board.get_score()) + " out of "\
-                             + str(MAX_SCORE) + " points" , True, WHITE)
-    point_rect = point.get_rect(center=(width/2, 4*height/7))
+    win = fontText.render("Winner is the " + str(winner) + "!", True, PELLET_COLOR)
+    win_rect = win.get_rect(center=(width/2, 4*height/7))
+
+    #point = fontText.render("Pac-man got " + str(board.get_score()) + " out of "\
+                             #+ str(MAX_SCORE) + " points" , True, WHITE)
+    #point_rect = point.get_rect(center=(width/2, 4*height/7))
     text_bg = pygame.Rect(0, 0, width*0.8, height*0.2)
     text_bg.center = (width/2, height*0.53)
     
@@ -96,5 +91,5 @@ def gameOver(scr, board):
                 return
         pygame.draw.rect(scr, BLACK, text_bg)
         scr.blit(gameOver, gameOver_rect)
-        scr.blit(point, point_rect)
+        scr.blit(win, win_rect)
         pygame.display.update()
