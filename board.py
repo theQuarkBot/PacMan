@@ -154,15 +154,28 @@ class Board():
                                         w_thick, bar_len))
 
                     #draws left bar if the box to left is also wall
-                    if j != 0 and (self.board[i][j-1] == '%' \
-                                    or self.board[i][j-1] == '-'):
+                    #but the boxes up and down of itself and
+                    #up and down of box to the right are not all walls
+                    if not (j != 0 and i != 0 and self.board[i-1][j-1] == '%' \
+                        and self.board[i-1][j] == '%' \
+                        and i != len(self.board)-1 \
+                        and self.board[i+1][j-1] == '%' \
+                        and self.board[i+1][j] == '%') \
+                    and j != 0 and self.board[i][j-1] == '%':
                         pygame.draw.rect(scr, self.wall_color, \
                             pygame.Rect(j * bs, i * bs + w_displ, \
                                         bar_len, w_thick))
 
                     #draws right bar if the box to right is also wall
-                    if j != len(self.board[0])-1 and \
-                    (self.board[i][j+1] == '%' or self.board[i][j+1] == '-'):
+                    #but the boxes up and down of itself and
+                    #up and down of box to the left are not all walls
+                    if not (i != 0 and j != len(self.board[0])-1
+                        and self.board[i-1][j+1] == '%' \
+                        and self.board[i-1][j] == '%' \
+                        and i != len(self.board)-1 \
+                        and self.board[i+1][j+1] == '%' \
+                        and self.board[i+1][j] == '%') \
+                    and j != len(self.board[0])-1 and self.board[i][j+1] == '%':
                         pygame.draw.rect(scr, self.wall_color, \
                             pygame.Rect(j * bs + bar_len, i * bs + w_displ, \
                                         bar_len, w_thick))
@@ -184,10 +197,11 @@ class Board():
         self.blink += 1
         font = pygame.font.Font("bin/font/game over.ttf", 36)
         score_text = font.render("Score: "+str(self.score)+"/"+str(MAX_SCORE),\
-                            True, RED)
+                                    True, RED)
         scr.blit(score_text, [10, 10])
         lives_text = font.render("Lives: "+str(self.lives), True, RED)
-        scr.blit(lives_text, [scr.get_width() - lives_text.get_size()[0] - 10, 10])
+        scr.blit(lives_text, \
+                    [scr.get_width() - lives_text.get_size()[0] - 10, 10])
 if __name__ == '__main__':
     b = Board()
     b.run()

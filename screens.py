@@ -65,7 +65,7 @@ def startScreen(scr):
         scr.blit(enter, enter_rect)
         pygame.display.update() 
 
-def gameOver(scr, board, winner="Ghost"):
+def gameOver(scr, board, winner="Tie"):
     width = scr.get_width() 
     height = scr.get_height() 
     fontTitle = pygame.font.Font("bin/font/game over.ttf", 100)
@@ -75,6 +75,8 @@ def gameOver(scr, board, winner="Ghost"):
     gameOver_rect = gameOver.get_rect(center=(width/2, height/2))
 
     win = fontText.render("Winner is the " + str(winner) + "!", True, PELLET_COLOR)
+    if (winner == "Tie"):
+        win = fontText.render("It's a tie!", True, PELLET_COLOR)
     win_rect = win.get_rect(center=(width/2, 4*height/7))
 
     #point = fontText.render("Pac-man got " + str(board.get_score()) + " out of "\
@@ -93,3 +95,4 @@ def gameOver(scr, board, winner="Ghost"):
         scr.blit(gameOver, gameOver_rect)
         scr.blit(win, win_rect)
         pygame.display.update()
+
