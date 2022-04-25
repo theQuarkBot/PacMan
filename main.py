@@ -20,7 +20,10 @@ def main():
 
     player_num = startScreen(screen)
 
+    winner = "Tie"
+
     board = Board(screen)
+    lives = START_LIVES
 
     # Mutex and ligthswitch to support 
     player_update_switch = Lightswitch()
@@ -41,12 +44,13 @@ def main():
     #                   finished_updating, threads, board, GHOST_START_POS)
     pacman1 = Pacman(ARROW_CONTROLS, player_update_switch,
                      finished_updating, threads, board, PACMAN_START_POS)
-    ghost1 = Ghost(WASD_CONTROLS, player_update_switch,
-                      finished_updating, threads, board, GHOST_START_POS)
     ghost2 = RandomGhost(player_update_switch,
                       finished_updating, threads, board, GHOST_START_POS)
     pacmans.append(pacman1)
-    ghosts.append(ghost1)
+    if player_num == 2:
+        ghost1 = Ghost(WASD_CONTROLS, player_update_switch,
+                      finished_updating, threads, board, GHOST_START_POS)
+        ghosts.append(ghost1)
     ghosts.append(ghost2)
 
     players = pacmans + ghosts
@@ -59,13 +63,22 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
                 for player in players:
                     player.stop()
         if pygame.sprite.spritecollideany(pacmans[0], ghosts):
+            board.minus_lives()
+            lives -= 1
+            #Respawn players
+            if not lives:
+                winner = "Ghost"
+                running = False
+                for player in players:
+                    player.stop()
+        if board.get_score() == MAX_SCORE:
+            winner = "Pac-Man"
             running = False
             for player in players:
-                    player.stop()
+                player.stop()
 
         # Ensure that all players are not currently updating
         finished_updating.acquire()

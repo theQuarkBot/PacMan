@@ -42,7 +42,7 @@ class Board():
         self.pellet_color = pellet_color
         self.score = 0
         self.blink = 0
-        self.lives = 3
+        self.lives = START_LIVES
 
     def minus_lives(self):
         self.lives -= 1
@@ -157,11 +157,11 @@ class Board():
                     #but the boxes up and down of itself and
                     #up and down of box to the right are not all walls
                     if not (j != 0 and i != 0 and self.board[i-1][j-1] == '%' \
-                        and self.board[i-1][j] == '%' \
+                        and self.board[i-1][j] in '%' \
                         and i != len(self.board)-1 \
                         and self.board[i+1][j-1] == '%' \
                         and self.board[i+1][j] == '%') \
-                    and j != 0 and self.board[i][j-1] == '%':
+                    and j != 0 and self.board[i][j-1] in ('%', '-'):
                         pygame.draw.rect(scr, self.wall_color, \
                             pygame.Rect(j * bs, i * bs + w_displ, \
                                         bar_len, w_thick))
@@ -175,7 +175,7 @@ class Board():
                         and i != len(self.board)-1 \
                         and self.board[i+1][j+1] == '%' \
                         and self.board[i+1][j] == '%') \
-                    and j != len(self.board[0])-1 and self.board[i][j+1] == '%':
+                    and j != len(self.board[0])-1 and self.board[i][j+1] in ('%', '-'):
                         pygame.draw.rect(scr, self.wall_color, \
                             pygame.Rect(j * bs + bar_len, i * bs + w_displ, \
                                         bar_len, w_thick))
