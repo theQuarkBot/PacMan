@@ -7,6 +7,7 @@ import threading
 from settings import *
 from thread_safe_classes import Lightswitch
 from board import Board
+import random
 
 
 class Pacman:
@@ -213,6 +214,123 @@ class Ghost:
         new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
         self.__try_teleport_through_tunnel__(new_rect)
         can_move = self.board.check_wall(new_rect)
+
+        # Update the current move if the new move is possible
+        if can_move:
+            self.cur_vector.xy = self.next_vector.xy
+            self.imageC = self.imageN
+        # Otherwise try moving in the old direction
+        else:
+            new_rect = self.rect.move(self.cur_vector.x, self.cur_vector.y)
+            self.__try_teleport_through_tunnel__(new_rect)
+            can_move = self.board.check_wall(new_rect)
+
+        # Update position
+        if can_move:
+            self.rect.topleft = new_rect.topleft
+
+        self.update_switch.unlock(self.finished_updating)
+
+    def __try_teleport_through_tunnel__(self, rect):
+        if rect.left < 0:
+            rect.right = WIDTH - 2
+        if rect.right >= WIDTH:
+            rect.left = 0
+        if rect.top <= 0:
+            rect.bottom = HEIGHT - 2
+        if rect.bottom >= HEIGHT:
+            rect.top = 0
+
+class RandomGhost:
+    def __init__(self, update_switch, finished_updating, all_threads,
+                 board, start_pos):
+        # Initialize sprite image
+        self.__init_sprites__()
+        self.imageC = self.imageR
+        self.imageN = self.imageC
+        self.rect = self.imageC.get_rect()
+
+        self.board = board
+        self.rect.topleft = start_pos
+
+        # Initialize movement buffer
+        self.cur_vector = pygame.Vector2((0, 0))
+        self.next_vector = pygame.Vector2((0, 0))
+
+        # Update synchronization variables
+        self.can_update = threading.Semaphore(0)
+        self.update_switch = update_switch
+        self.finished_updating = finished_updating
+        self.mutex = threading.Semaphore(1)
+
+        self.running = True
+
+        self.next_move = 0
+
+
+        # Start movement thread
+        self.thread = threading.Thread(target=self.__run__)
+        all_threads.append(self.thread)
+        self.thread.start()
+
+    def __init_sprites__(self):
+        self.imageU = pygame.image.load(
+            "bin/sprites/ghost-4.gif").convert_alpha()
+        self.imageD = self.imageU
+        self.imageL = self.imageU
+        self.imageR = self.imageU
+
+        self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
+
+        self.imageU = pygame.transform.scale(
+            self.imageU, self.__sprite_dimensions__)
+        self.imageD = pygame.transform.scale(
+            self.imageD, self.__sprite_dimensions__)
+        self.imageL = pygame.transform.scale(
+            self.imageL, self.__sprite_dimensions__)
+        self.imageR = pygame.transform.scale(
+            self.imageR, self.__sprite_dimensions__)
+
+    def update_event(self, pressed_keys):
+        self.update_switch.lock(self.finished_updating)
+
+        self.pressed_keys = pressed_keys
+
+        self.can_update.release()
+
+    def __run__(self):
+        while self.running:
+            self.can_update.acquire()
+            self.__update_pos__()
+
+    def stop(self):
+        self.running = False
+        # while self.thread.is_alive():
+        self.can_update.release()
+
+    def __update_pos__(self):
+        # Save the keypresses and next image for next velocity change
+
+        if self.next_move == 0:
+            self.next_vector.xy = 0, -PACMAN_SPEED
+            self.imageN = self.imageU
+        elif self.next_move == 1:
+            self.next_vector.xy = 0, PACMAN_SPEED
+            self.imageN = self.imageD
+        elif self.next_move == 2:
+            self.next_vector.xy = -PACMAN_SPEED, 0
+            self.imageN = self.imageL
+        elif self.next_move == 3:
+            self.next_vector.xy = PACMAN_SPEED, 0
+            self.imageN = self.imageR
+
+        # Determine whether it can go in the new direction
+        new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
+        self.__try_teleport_through_tunnel__(new_rect)
+        can_move = self.board.check_wall(new_rect)
+
+        if not can_move:
+            self.next_move = random.randint(0,3)
 
         # Update the current move if the new move is possible
         if can_move:

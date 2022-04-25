@@ -3,7 +3,7 @@ import pygame
 import threading
 from thread_safe_classes import Lightswitch
 from settings import *
-from pacman_class import Pacman, Ghost
+from pacman_class import Pacman, Ghost, RandomGhost
 from board import Board
 from player import PacmanTesting, GhostTesting
 from screens import *
@@ -43,8 +43,11 @@ def main():
                      finished_updating, threads, board, PACMAN_START_POS)
     ghost1 = Ghost(WASD_CONTROLS, player_update_switch,
                       finished_updating, threads, board, GHOST_START_POS)
+    ghost2 = RandomGhost(player_update_switch,
+                      finished_updating, threads, board, GHOST_START_POS)
     pacmans.append(pacman1)
     ghosts.append(ghost1)
+    ghosts.append(ghost2)
 
     players = pacmans + ghosts
 
