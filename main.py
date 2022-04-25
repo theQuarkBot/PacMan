@@ -68,12 +68,15 @@ def main():
         if pygame.sprite.spritecollideany(pacmans[0], ghosts):
             board.minus_lives()
             lives -= 1
-            #Respawn players
             if not lives:
                 winner = "Ghost"
                 running = False
                 for player in players:
                     player.stop()
+            #Respawn players
+            pacmans[0].reset()
+            for g in ghosts:
+                g.reset()
         if board.get_score() == MAX_SCORE:
             winner = "Pac-Man"
             running = False

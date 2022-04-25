@@ -15,16 +15,9 @@ class Pacman:
                  board, start_pos):
         # Initialize sprite image
         self.__init_sprites__()
-        self.imageC = self.imageR
-        self.imageN = self.imageC
-        self.rect = self.imageC.get_rect()
-
         self.board = board
-        self.rect.topleft = start_pos
-
-        # Initialize movement buffer
-        self.cur_vector = pygame.Vector2((0, 0))
-        self.next_vector = pygame.Vector2((0, 0))
+        self.start = start_pos
+        self.reset()
 
         # Set controls
         (self.UP, self.DOWN, self.LEFT, self.RIGHT) = controls
@@ -62,6 +55,16 @@ class Pacman:
             self.imageL, self.__sprite_dimensions__)
         self.imageR = pygame.transform.scale(
             self.imageR, self.__sprite_dimensions__)
+
+    def reset(self):
+        self.imageC = self.imageR
+        self.imageN = self.imageC
+        self.rect = self.imageC.get_rect()
+        self.rect.topleft = self.start
+        # Initialize movement buffer
+        self.cur_vector = pygame.Vector2((0, 0))
+        self.next_vector = pygame.Vector2((0, 0))
+
 
     def update_event(self, pressed_keys):
         self.update_switch.lock(self.finished_updating)
@@ -133,16 +136,9 @@ class Ghost:
                  board, start_pos):
         # Initialize sprite image
         self.__init_sprites__()
-        self.imageC = self.imageR
-        self.imageN = self.imageC
-        self.rect = self.imageC.get_rect()
-
         self.board = board
-        self.rect.topleft = start_pos
-
-        # Initialize movement buffer
-        self.cur_vector = pygame.Vector2((0, 0))
-        self.next_vector = pygame.Vector2((0, 0))
+        self.start = start_pos
+        self.reset()
 
         # Set controls
         (self.UP, self.DOWN, self.LEFT, self.RIGHT) = controls
@@ -177,6 +173,15 @@ class Ghost:
             self.imageL, self.__sprite_dimensions__)
         self.imageR = pygame.transform.scale(
             self.imageR, self.__sprite_dimensions__)
+
+    def reset(self):
+        self.imageC = self.imageR
+        self.imageN = self.imageC
+        self.rect = self.imageC.get_rect()
+        self.rect.topleft = self.start
+        # Initialize movement buffer
+        self.cur_vector = pygame.Vector2((0, 0))
+        self.next_vector = pygame.Vector2((0, 0))
 
     def update_event(self, pressed_keys):
         self.update_switch.lock(self.finished_updating)
@@ -246,16 +251,9 @@ class RandomGhost:
                  board, start_pos):
         # Initialize sprite image
         self.__init_sprites__()
-        self.imageC = self.imageR
-        self.imageN = self.imageC
-        self.rect = self.imageC.get_rect()
-
         self.board = board
-        self.rect.topleft = start_pos
-
-        # Initialize movement buffer
-        self.cur_vector = pygame.Vector2((0, 0))
-        self.next_vector = pygame.Vector2((0, 0))
+        self.start = start_pos
+        self.reset()
 
         # Update synchronization variables
         self.can_update = threading.Semaphore(0)
@@ -290,6 +288,15 @@ class RandomGhost:
             self.imageL, self.__sprite_dimensions__)
         self.imageR = pygame.transform.scale(
             self.imageR, self.__sprite_dimensions__)
+
+    def reset(self):
+        self.imageC = self.imageR
+        self.imageN = self.imageC
+        self.rect = self.imageC.get_rect()
+        self.rect.topleft = self.start
+        # Initialize movement buffer
+        self.cur_vector = pygame.Vector2((0, 0))
+        self.next_vector = pygame.Vector2((0, 0))
 
     def update_event(self, pressed_keys):
         self.update_switch.lock(self.finished_updating)
