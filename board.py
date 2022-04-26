@@ -21,7 +21,7 @@ BOARD = [
     ['o', 'o', 'o', 'o', 'a', 'a', 'a', '%', 'o', 'o', 'o', '%', 'a', 'a', 'a', 'o', 'o', 'o', 'o'],
     ['%', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', '%'],
     ['o', 'o', 'o', '%', 'a', '%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%', 'a', '%', 'o', 'o', 'o'],
-    ['%', '%', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', '%', '%'],
+    ['%', '%', '%', '%', 'a', '%', 'a', 'a', 'a', '%', 'a', 'a', 'a', '%', 'a', '%', '%', '%', '%'],
     ['%', 'a', 'a', 'a', 's', '%', 'a', 'a', 'a', '%', 'a', 'a', 'a', '%', 's', 'a', 'a', 'a', '%'],
     ['%', 'a', '%', '%', 'a', '%', 'a', '%', '%', '%', '%', '%', 'a', '%', 'a', '%', '%', 'a', '%'],
     ['%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'o', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%'],
@@ -67,6 +67,31 @@ class Board():
         # Check if colliding with wall
         if top_left == '%' or bottom_left == '%' or \
            top_right == '%' or bottom_right == '%':
+            return False
+        return True
+
+    def check_wall_rand_ghost(self, rect, dirc):
+        top_left     = self.board \
+                        [int((rect.top    + 1) / self.block_size)] \
+                        [int((rect.left   + 1) / self.block_size)]
+        bottom_left  = self.board \
+                        [int((rect.bottom - 1) / self.block_size)] \
+                        [int((rect.left   + 1) / self.block_size)]
+        top_right    = self.board \
+                        [int((rect.top    + 1) / self.block_size)] \
+                        [int((rect.right  - 1) / self.block_size)]
+        bottom_right = self.board \
+                        [int((rect.bottom - 1) / self.block_size)] \
+                        [int((rect.right  - 1) / self.block_size)]
+
+        if top_left == '-' or bottom_left in '-' or \
+           top_right == '-' or bottom_right in '-':
+            if dirc == 1:
+                return False
+
+        # Check if colliding with wall
+        if top_left == '%' or bottom_left in '%' or \
+           top_right == '%' or bottom_right in '%':
             return False
         return True
 

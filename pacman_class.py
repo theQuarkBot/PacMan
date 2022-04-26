@@ -262,11 +262,9 @@ class RandomGhost:
         self.mutex = threading.Semaphore(1)
 
         self.running = True
-
-        self.next_move = 0
-        self.time = 0
-        self.pot_move = 0
-        self.pot_vector = pygame.Vector2((0, 0))
+        
+        #self.pot_move = 0
+        #self.pot_vector = pygame.Vector2((0, 0))
         self.imageP = self.imageC
         
         # Used to give time between wall collision and next move
@@ -307,6 +305,9 @@ class RandomGhost:
         # Initialize movement buffer
         self.cur_vector = pygame.Vector2((0, 0))
         self.next_vector = pygame.Vector2((0, 0))
+
+        self.next_move = 0
+        self.time = 0
 
     def update_event(self, pressed_keys):
         self.update_switch.lock(self.finished_updating)
@@ -364,13 +365,13 @@ class RandomGhost:
         # Determine whether it can go in the new direction
         new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
         self.__try_teleport_through_tunnel__(new_rect)
-        can_move = self.board.check_wall(new_rect)
+        can_move = self.board.check_wall_rand_ghost(new_rect, self.next_move)
 
         # Used to see if a potential new direction is possible
         # without having to wait for a collision with a wall
         #pot_rect = self.rect.move(self.pot_vector.x, self.pot_vector.y)
         #self.__try_teleport_through_tunnel_pot__(pot_rect)
-        #can_moveP = self.board.check_wall(pot_rect)
+        #can_moveP = self.board.check_wall_rand_ghost(pot_rect)
 
         # Want to use the new move if possible
         #if can_moveP:
@@ -384,7 +385,7 @@ class RandomGhost:
         else:
             new_rect = self.rect.move(self.cur_vector.x, self.cur_vector.y)
             self.__try_teleport_through_tunnel__(new_rect)
-            can_move = self.board.check_wall(new_rect)
+            can_move = self.board.check_wall_rand_ghost(new_rect, self.next_move)
 
         # only changes value when contact with wall
         if not can_move:
