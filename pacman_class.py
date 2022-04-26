@@ -264,7 +264,10 @@ class RandomGhost:
         self.running = True
 
         self.next_move = 0
-
+        self.time = 0
+        self.pot_move = 0
+        self.pot_vector = pygame.Vector2((0, 0))
+        self.imageP = self.imageC
 
         # Start movement thread
         self.thread = threading.Thread(target=self.__run__)
@@ -318,6 +321,26 @@ class RandomGhost:
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
 
+        if self.time == 200:
+            self.pot_move= random.randint(0,3)
+            self.time = 0
+        self.time += 1
+
+        # Used to determine values for potential turning 
+        if self.pot_move == 0:
+            self.pot_vector.xy = 0, -PACMAN_SPEED
+            self.imageP = self.imageU
+        elif self.pot_move == 1:
+            self.pot_vector.xy = 0, PACMAN_SPEED
+            self.imageP = self.imageD
+        elif self.pot_move == 2:
+            self.pot_vector.xy = -PACMAN_SPEED, 0
+            self.imageP = self.imageL
+        elif self.pot_move == 3:
+            self.pot_vector.xy = PACMAN_SPEED, 0
+            self.imageP = self.imageR
+
+
         if self.next_move == 0:
             self.next_vector.xy = 0, -PACMAN_SPEED
             self.imageN = self.imageU
@@ -336,11 +359,22 @@ class RandomGhost:
         self.__try_teleport_through_tunnel__(new_rect)
         can_move = self.board.check_wall(new_rect)
 
+        # Used to see if a potential new direction is possible
+        # without having to wait for a collision with a wall
+        pot_rect = self.rect.move(self.pot_vector.x, self.pot_vector.y)
+        self.__try_teleport_through_tunnel_pot__(pot_rect)
+        can_moveP = self.board.check_wall(pot_rect)
+
+        # only changes value when contact with wall
         if not can_move:
             self.next_move = random.randint(0,3)
 
+        # Want to use the new move if possible
+        if can_moveP:
+            self.cur_vector.xy = self.pot_vector.xy
+            self.imageC = self.imageP
         # Update the current move if the new move is possible
-        if can_move:
+        elif can_move:
             self.cur_vector.xy = self.next_vector.xy
             self.imageC = self.imageN
         # Otherwise try moving in the old direction
@@ -350,12 +384,24 @@ class RandomGhost:
             can_move = self.board.check_wall(new_rect)
 
         # Update position
-        if can_move:
+        if can_moveP:
+            self.rect.topleft = pot_rect.topleft
+        elif can_move:
             self.rect.topleft = new_rect.topleft
 
         self.update_switch.unlock(self.finished_updating)
 
     def __try_teleport_through_tunnel__(self, rect):
+        if rect.left < 0:
+            rect.right = WIDTH - 2
+        if rect.right >= WIDTH:
+            rect.left = 0
+        if rect.top <= 0:
+            rect.bottom = HEIGHT - 2
+        if rect.bottom >= HEIGHT:
+            rect.top = 0
+
+    def __try_teleport_through_tunnel_pot__(self, rect):
         if rect.left < 0:
             rect.right = WIDTH - 2
         if rect.right >= WIDTH:
