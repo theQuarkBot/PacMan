@@ -423,6 +423,7 @@ class RandomGhost:
             rect.top = 0
 
 def get_rev(i):
+    #return the opposite of the given direction
     if i == 0:
         return 1
     elif i == 1:

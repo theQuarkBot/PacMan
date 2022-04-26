@@ -6,35 +6,12 @@ from settings import *
 # o - empty
 # a - pellet
 # s - super pellet
-BOARD = [
-    ['o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o'],
-    ['%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%'],
-    ['%', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 's', '%'],
-    ['%', 'a', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', 'a', '%'],
-    ['%', 'a', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', 'a', '%'],
-    ['%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%'],
-    ['%', 'a', '%', '%', 'a', '%', 'a', '%', '%', '%', '%', '%', 'a', '%', 'a', '%', '%', 'a', '%'],
-    ['%', 'a', 'a', 'a', 's', '%', 'a', 'a', 'a', '%', 'a', 'a', 'a', '%', 's', 'a', 'a', 'a', '%'],
-    ['%', '%', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', '%', '%'],
-    ['o', 'o', 'o', '%', 'a', '%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%', 'a', '%', 'o', 'o', 'o'],
-    ['%', '%', '%', '%', 'a', '%', 'a', '%', '%', '-', '%', '%', 'a', '%', 'a', '%', '%', '%', '%'],
-    ['o', 'o', 'o', 'o', 'a', 'a', 'a', '%', 'o', 'o', 'o', '%', 'a', 'a', 'a', 'o', 'o', 'o', 'o'],
-    ['%', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', '%'],
-    ['o', 'o', 'o', '%', 'a', '%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%', 'a', '%', 'o', 'o', 'o'],
-    ['%', '%', '%', '%', 'a', '%', 'a', 'a', 'a', '%', 'a', 'a', 'a', '%', 'a', '%', '%', '%', '%'],
-    ['%', 'a', 'a', 'a', 's', '%', 'a', 'a', 'a', '%', 'a', 'a', 'a', '%', 's', 'a', 'a', 'a', '%'],
-    ['%', 'a', '%', '%', 'a', '%', 'a', '%', '%', '%', '%', '%', 'a', '%', 'a', '%', '%', 'a', '%'],
-    ['%', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'o', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', '%'],
-    ['%', 'a', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', 'a', '%'],
-    ['%', 'a', '%', '%', 'a', '%', '%', '%', 'a', '%', 'a', '%', '%', '%', 'a', '%', '%', 'a', '%'],
-    ['%', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 's', '%'],
-    ['%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%', '%']
-]
 
 class Board():
 
     def __init__(self, scr, board=BOARD, block_size=BLOCKSIZE, \
             wall_color=WALL_COLOR, pellet_color=PELLET_COLOR):
+        """ Init a board with default of spec in settings.py """
         self.scr = scr
         self.board = board
         self.block_size = block_size
@@ -45,58 +22,92 @@ class Board():
         self.lives = START_LIVES
 
     def minus_lives(self):
+        """ Decrement a life """
         self.lives -= 1
         
     def get_score(self):
+        """ Get pac-man's pellet score """
         return self.score
-        
-    def check_wall(self, rect):
-        top_left     = self.board \
-                        [int((rect.top    + 1) / self.block_size)] \
-                        [int((rect.left   + 1) / self.block_size)]
-        bottom_left  = self.board \
-                        [int((rect.bottom - 1) / self.block_size)] \
-                        [int((rect.left   + 1) / self.block_size)]
-        top_right    = self.board \
-                        [int((rect.top    + 1) / self.block_size)] \
-                        [int((rect.right  - 1) / self.block_size)]
-        bottom_right = self.board \
-                        [int((rect.bottom - 1) / self.block_size)] \
-                        [int((rect.right  - 1) / self.block_size)]
 
-        # Check if colliding with wall
-        if top_left == '%' or bottom_left == '%' or \
-           top_right == '%' or bottom_right == '%':
+    def get_block(self, coord):
+        """ Get the symbol at given coord """
+        return self.board[coord[0]][coord[1]]
+
+    def put_block(self, coord, v):
+        """ Change the symbol to v at given coord """
+        self.board[coord[0]][coord[1]] = v
+        
+
+    def check_wall(self, rect):
+        """ Check if colliding with wall """
+        (top_left, bottom_left, top_right, bottom_right) = \
+                                            self.get_corners(rect, 1)
+
+        if self.get_block(top_left) == '%' \
+        or self.get_block(bottom_left) in '%' \
+        or self.get_block(top_right) == '%' \
+        or self.get_block(bottom_right) in '%':
             return False
         return True
 
     def check_wall_rand_ghost(self, rect, dirc):
-        top_left     = self.board \
-                        [int((rect.top    + 1) / self.block_size)] \
-                        [int((rect.left   + 1) / self.block_size)]
-        bottom_left  = self.board \
-                        [int((rect.bottom - 1) / self.block_size)] \
-                        [int((rect.left   + 1) / self.block_size)]
-        top_right    = self.board \
-                        [int((rect.top    + 1) / self.block_size)] \
-                        [int((rect.right  - 1) / self.block_size)]
-        bottom_right = self.board \
-                        [int((rect.bottom - 1) / self.block_size)] \
-                        [int((rect.right  - 1) / self.block_size)]
+        """ Check if colliding with wall for random ghosts, one-way gate """
+        (top_left, bottom_left, top_right, bottom_right) = \
+                                            self.get_corners(rect, 1)
+        # Check if going down into gate
 
-        if top_left == '-' or bottom_left in '-' or \
-           top_right == '-' or bottom_right in '-':
+        if self.get_block(top_left) == '-' \
+        or self.get_block(bottom_left) in '-' \
+        or self.get_block(top_right) == '-' \
+        or self.get_block(bottom_right) in '-':
             if dirc == 1:
                 return False
 
         # Check if colliding with wall
-        if top_left == '%' or bottom_left in '%' or \
-           top_right == '%' or bottom_right in '%':
+
+        if self.get_block(top_left) == '%' \
+        or self.get_block(bottom_left) in '%' \
+        or self.get_block(top_right) == '%' \
+        or self.get_block(bottom_right) in '%':
             return False
         return True
 
     def check_pellet(self, rect):
+        """ Check if touched pellet and add points accordingly """
         offset = self.block_size/2
+        (top_left, bottom_left, top_right, bottom_right) = \
+                                self.get_corners(rect, self.block_size/2)
+
+        # Remove pellet if going over pellet
+
+        if self.get_block(top_left) == 'a':
+            self.put_block(top_left, 'o')
+            self.score += 1
+        if self.get_block(bottom_left) == 'a':
+            self.put_block(bottom_left, 'o')
+            self.score += 1
+        if self.get_block(top_right) == 'a':
+            self.put_block(top_right, 'o')
+            self.score += 1
+        if self.get_block(bottom_right) == 'a':
+            self.put_block(bottom_right, 'o')
+            self.score += 1
+
+        if self.get_block(top_left) == 's':
+            self.put_block(top_left, 'o')
+            self.score += 5
+        if self.get_block(bottom_left) == 's':
+            self.put_block(bottom_left, 'o')
+            self.score += 5
+        if self.get_block(top_right) == 's':
+            self.put_block(top_right, 'o')
+            self.score += 5
+        if self.get_block(bottom_right) == 's':
+            self.put_block(bottom_right, 'o')
+            self.score += 5
+
+    def get_corners(self, rect, offset):
+        """ Helper function for the check functions, get the block of the four corners """
         top_left     = (int((rect.top    + offset) / self.block_size), \
                         int((rect.left   + offset) / self.block_size))
         bottom_left  = (int((rect.bottom - offset) / self.block_size), \
@@ -106,35 +117,10 @@ class Board():
         bottom_right = (int((rect.bottom - offset) / self.block_size), \
                         int((rect.right  - offset) / self.block_size))
 
-        # Remove pellet if going over pellet
-        if self.board[top_left[0]][top_left[1]] == 'a':
-            self.board[top_left[0]][top_left[1]] = 'o'
-            self.score += 1
-        if self.board[bottom_left[0]][bottom_left[1]] == 'a':
-            self.board[bottom_left[0]][bottom_left[1]] = 'o'
-            self.score += 1
-        if self.board[top_right[0]][top_right[1]] == 'a':
-            self.board[top_right[0]][top_right[1]] = 'o'
-            self.score += 1
-        if self.board[bottom_right[0]][bottom_right[1]] == 'a':
-            self.board[bottom_right[0]][bottom_right[1]] = 'o'
-            self.score += 1
-
-        if self.board[top_left[0]][top_left[1]] == 's':
-            self.board[top_left[0]][top_left[1]] = 'o'
-            self.score += 5
-        if self.board[bottom_left[0]][bottom_left[1]] == 's':
-            self.board[bottom_left[0]][bottom_left[1]] = 'o'
-            self.score += 5
-        if self.board[top_right[0]][top_right[1]] == 's':
-            self.board[top_right[0]][top_right[1]] = 'o'
-            self.score += 5
-        if self.board[bottom_right[0]][bottom_right[1]] == 's':
-            self.board[bottom_right[0]][bottom_right[1]] = 'o'
-            self.score += 5
+        return (top_left, bottom_left, top_right, bottom_right)
 
     def run(self):
-
+        """ Draws the board """
         bs = self.block_size
         scr = self.scr
         w_thick = 0.3 * bs
@@ -200,11 +186,11 @@ class Board():
                         and i != len(self.board)-1 \
                         and self.board[i+1][j+1] == '%' \
                         and self.board[i+1][j] == '%') \
-                    and j != len(self.board[0])-1 and self.board[i][j+1] in ('%', '-'):
+                    and j != len(self.board[0])-1 \
+                    and self.board[i][j+1] in ('%', '-'):
                         pygame.draw.rect(scr, self.wall_color, \
                             pygame.Rect(j * bs + bar_len, i * bs + w_displ, \
                                         bar_len, w_thick))
-
                 elif blocks == 'a':
                     pos = (j * bs + bs/2 , i * bs + bs/2)
                     pygame.draw.circle(scr, self.pellet_color, pos, bs/8)
@@ -217,13 +203,19 @@ class Board():
                         pygame.Rect(j * bs, i * bs + 0.45 * bs, bs, 0.1 * bs))
                 j += 1
             i += 1
+
+        #Super pellets are shown on and off every 30 frames
         if self.blink == 30:
             self.blink = 0
         self.blink += 1
+
+        #Display score and lives
         font = pygame.font.Font("bin/font/game over.ttf", 36)
+
         score_text = font.render("Score: "+str(self.score)+"/"+str(MAX_SCORE),\
                                     True, RED)
         scr.blit(score_text, [10, 10])
+
         lives_text = font.render("Lives: "+str(self.lives), True, RED)
         scr.blit(lives_text, \
                     [scr.get_width() - lives_text.get_size()[0] - 10, 10])
