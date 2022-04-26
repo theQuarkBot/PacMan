@@ -329,7 +329,13 @@ class RandomGhost:
         # Save the keypresses and next image for next velocity change
 
         if self.time == 200:
-            self.pot_move= random.randint(0,3)
+            if self.hit_wall:
+                temp = self.pot_move
+                if temp == 0 or temp == 1:
+                    self.pot_move= random.randint(2,3)
+                else:
+                    self.pot_move= random.randint(0,1)
+                self.hit_wall = False
             self.time = 0
         self.time += 1
 
@@ -373,8 +379,9 @@ class RandomGhost:
         can_moveP = self.board.check_wall(pot_rect)
 
         # only changes value when contact with wall
-        if not can_moveP:
+        if not can_move:
             self.next_move = random.randint(0,3)
+            self.hit_wall = True
             #self.hit_wall_time += 1
 
         '''if self.hit_wall_time > 0:
