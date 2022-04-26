@@ -268,6 +268,13 @@ class RandomGhost:
         self.pot_move = 0
         self.pot_vector = pygame.Vector2((0, 0))
         self.imageP = self.imageC
+        
+        # Used to give time between wall collision and next move
+        #self.hit_wall_time = 0
+        # Used to make sure that we don't try to crash back into the wall 
+        # immediately after moving away
+        self.hit_wall = False
+
 
         # Start movement thread
         self.thread = threading.Thread(target=self.__run__)
@@ -321,24 +328,24 @@ class RandomGhost:
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
 
-        if self.time == 100:
-            self.next_move = random.randint(0,3)
+        if self.time == 200:
+            self.pot_move= random.randint(0,3)
             self.time = 0
         self.time += 1
 
         # Used to determine values for potential turning 
-        #if self.pot_move == 0:
-        #    self.pot_vector.xy = 0, -PACMAN_SPEED
-        #    self.imageP = self.imageU
-        #elif self.pot_move == 1:
-        #    self.pot_vector.xy = 0, PACMAN_SPEED
-        #    self.imageP = self.imageD
-        #elif self.pot_move == 2:
-        #    self.pot_vector.xy = -PACMAN_SPEED, 0
-        #    self.imageP = self.imageL
-        #elif self.pot_move == 3:
-        #    self.pot_vector.xy = PACMAN_SPEED, 0
-        #    self.imageP = self.imageR
+        if self.pot_move == 0:
+            self.pot_vector.xy = 0, -PACMAN_SPEED
+            self.imageP = self.imageU
+        elif self.pot_move == 1:
+            self.pot_vector.xy = 0, PACMAN_SPEED
+            self.imageP = self.imageD
+        elif self.pot_move == 2:
+            self.pot_vector.xy = -PACMAN_SPEED, 0
+            self.imageP = self.imageL
+        elif self.pot_move == 3:
+            self.pot_vector.xy = PACMAN_SPEED, 0
+            self.imageP = self.imageR
 
 
         if self.next_move == 0:
@@ -361,16 +368,28 @@ class RandomGhost:
 
         # Used to see if a potential new direction is possible
         # without having to wait for a collision with a wall
-        #pot_rect = self.rect.move(self.pot_vector.x, self.pot_vector.y)
-        #self.__try_teleport_through_tunnel_pot__(pot_rect)
-        #can_moveP = self.board.check_wall(pot_rect)
+        pot_rect = self.rect.move(self.pot_vector.x, self.pot_vector.y)
+        self.__try_teleport_through_tunnel_pot__(pot_rect)
+        can_moveP = self.board.check_wall(pot_rect)
 
+        # only changes value when contact with wall
+        if not can_moveP:
+            self.next_move = random.randint(0,3)
+            #self.hit_wall_time += 1
+
+        '''if self.hit_wall_time > 0:
+            if self.hit_wall_time == 50:
+                print("here")
+                self.hit_wall_time = 0
+            else:
+                self.hit_wall_time += 1'''
         # Want to use the new move if possible
-        #if can_moveP:
-        #    self.cur_vector.xy = self.pot_vector.xy
-        #    self.imageC = self.imageP
+        # if can_moveP and self.hit_wall_time == 0:
+        if can_moveP:
+                self.cur_vector.xy = self.pot_vector.xy
+                self.imageC = self.imageP
         # Update the current move if the new move is possible
-        if can_move:
+        elif can_move:
             self.cur_vector.xy = self.next_vector.xy
             self.imageC = self.imageN
         # Otherwise try moving in the old direction
@@ -379,17 +398,10 @@ class RandomGhost:
             self.__try_teleport_through_tunnel__(new_rect)
             can_move = self.board.check_wall(new_rect)
 
-        # only changes value when contact with wall
-        if not can_move:
-            old = get_rev(self.next_move)
-            self.next_move = random.randint(0, 3)
-            while self.next_move == old:
-                self.next_move = random.randint(0, 3)
-
         # Update position
-        #if can_moveP:
-        #    self.rect.topleft = pot_rect.topleft
-        if can_move:
+        if can_moveP:
+            self.rect.topleft = pot_rect.topleft
+        elif can_move:
             self.rect.topleft = new_rect.topleft
 
         self.update_switch.unlock(self.finished_updating)
@@ -414,15 +426,6 @@ class RandomGhost:
         if rect.bottom >= HEIGHT:
             rect.top = 0
 
-def get_rev(i):
-    if i == 0:
-        return 1
-    elif i == 1:
-        return 0
-    elif i == 2:
-        return 3
-    else:
-        return 2
 
 def main():
     pygame.init()
