@@ -249,8 +249,9 @@ class Ghost:
 
 class RandomGhost:
     def __init__(self, update_switch, finished_updating, all_threads,
-                 board, start_pos):
+                 board, start_pos, color=GHOST_RED):
         # Initialize sprite image
+        self.color = color
         self.__init_sprites__()
         self.board = board
         self.start = start_pos
@@ -286,6 +287,13 @@ class RandomGhost:
         for i in range(1, 7):
             img = pygame.image.load(os.path.join(
                 SPRITE_PATH, "ghost-" + str(i) + ".gif")).convert_alpha()
+
+            # Change ghost color if necessary
+            for y in range(0, 16):
+                for x in range(0, 16):
+                    # default, red ghost body color
+                    if img.get_at((x, y)) == GHOST_RED:
+                        img.set_at((x, y), self.color)
 
             self.anim.append(pygame.transform.scale(img, self.sprite_dim))
 

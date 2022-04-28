@@ -44,12 +44,12 @@ def main():
     #                   finished_updating, threads, board, GHOST_START_POS)
     pacman1 = Pacman(ARROW_CONTROLS, player_update_switch,
                      finished_updating, threads, board, PACMAN_START_POS)
-    ghost2 = RandomGhost(player_update_switch,
-                      finished_updating, threads, board, GHOST_START_POS)
-    ghost3 = RandomGhost(player_update_switch,
-                      finished_updating, threads, board, GHOST_START_POS)
-    ghost4 = RandomGhost(player_update_switch,
-                      finished_updating, threads, board, GHOST_START_POS)
+    ghost2 = RandomGhost(player_update_switch, finished_updating,
+                         threads, board, GHOST_START_POS, GHOST_PINK)
+    ghost3 = RandomGhost(player_update_switch, finished_updating,
+                         threads, board, GHOST_START_POS, GHOST_ORANGE)
+    ghost4 = RandomGhost(player_update_switch, finished_updating,
+                         threads, board, GHOST_START_POS, GHOST_LIGHT_BLUE)
 
     pacmans.append(pacman1)
     if player_num == 2:
