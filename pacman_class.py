@@ -1,13 +1,11 @@
-#!/usr/bin/python3
-
 from distutils.dep_util import newer
-import os, sys, random
-import pygame
-import threading
+import os, sys, random, pygame, threading
 from settings import *
-from thread_safe_classes import Lightswitch
-from board import Board
+# from thread_safe_classes import Lightswitch
+# from board import Board
 import random
+
+SPRITE_PATH = os.path.join(sys.path[0], "bin", "sprites")
 
 
 class Pacman:
@@ -36,35 +34,45 @@ class Pacman:
         self.thread.start()
 
     def __init_sprites__(self):
-        self.imageU = pygame.image.load(
-            "bin/sprites/pacman-u-4.gif").convert_alpha()
-        self.imageD = pygame.image.load(
-            "bin/sprites/pacman-d-4.gif").convert_alpha()
-        self.imageL = pygame.image.load(
-            "bin/sprites/pacman-l-4.gif").convert_alpha()
-        self.imageR = pygame.image.load(
-            "bin/sprites/pacman-r-4.gif").convert_alpha()
+        self.animU = []
+        self.animD = []
+        self.animL = []
+        self.animR = []
 
-        self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
+        self.sprite_dim = (BLOCKSIZE, BLOCKSIZE)
 
-        self.imageU = pygame.transform.scale(
-            self.imageU, self.__sprite_dimensions__)
-        self.imageD = pygame.transform.scale(
-            self.imageD, self.__sprite_dimensions__)
-        self.imageL = pygame.transform.scale(
-            self.imageL, self.__sprite_dimensions__)
-        self.imageR = pygame.transform.scale(
-            self.imageR, self.__sprite_dimensions__)
+        # Create sprite for each frame
+        for i in range(1, 9):
+            img_u = pygame.image.load(os.path.join(
+                SPRITE_PATH, "pacman-u-" + str(i) + ".gif")).convert_alpha()
+            img_d = pygame.image.load(os.path.join(
+                SPRITE_PATH, "pacman-d-" + str(i) + ".gif")).convert_alpha()
+            img_l = pygame.image.load(os.path.join(
+                SPRITE_PATH, "pacman-l-" + str(i) + ".gif")).convert_alpha()
+            img_r = pygame.image.load(os.path.join(
+                SPRITE_PATH, "pacman-r-" + str(i) + ".gif")).convert_alpha()
+
+            self.animU.append(pygame.transform.scale(img_u, self.sprite_dim))
+            self.animD.append(pygame.transform.scale(img_d, self.sprite_dim))
+            self.animL.append(pygame.transform.scale(img_l, self.sprite_dim))
+            self.animR.append(pygame.transform.scale(img_r, self.sprite_dim))
+
+        # Set starting animation
+        self.anim_frame = 0
+        self.animC = self.animR
+        self.imageC = self.animC[self.anim_frame]
 
     def reset(self):
-        self.imageC = self.imageR
-        self.imageN = self.imageC
-        self.rect = self.imageC.get_rect()
+        # Reset sprite and position
+        self.animC = self.animR
+        self.animN = self.animC
+        self.anim_frame = 0
+        self.rect = self.animC[self.anim_frame].get_rect()
         self.rect.topleft = self.start
+
         # Initialize movement buffer
         self.cur_vector = pygame.Vector2((0, 0))
         self.next_vector = pygame.Vector2((0, 0))
-
 
     def update_event(self, pressed_keys):
         self.update_switch.lock(self.finished_updating)
@@ -80,23 +88,22 @@ class Pacman:
 
     def stop(self):
         self.running = False
-        # while self.thread.is_alive():
         self.can_update.release()
 
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
         if self.pressed_keys[self.UP]:
             self.next_vector.xy = 0, -PACMAN_SPEED
-            self.imageN = self.imageU
+            self.animN = self.animU
         elif self.pressed_keys[self.DOWN]:
             self.next_vector.xy = 0, PACMAN_SPEED
-            self.imageN = self.imageD
+            self.animN = self.animD
         elif self.pressed_keys[self.LEFT]:
             self.next_vector.xy = -PACMAN_SPEED, 0
-            self.imageN = self.imageL
+            self.animN = self.animL
         elif self.pressed_keys[self.RIGHT]:
             self.next_vector.xy = PACMAN_SPEED, 0
-            self.imageN = self.imageR
+            self.animN = self.animR
 
         # Determine whether it can go in the new direction
         new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
@@ -106,7 +113,7 @@ class Pacman:
         # Update the current move if the new move is possible
         if can_move:
             self.cur_vector.xy = self.next_vector.xy
-            self.imageC = self.imageN
+            self.animC = self.animN
         # Otherwise try moving in the old direction
         else:
             new_rect = self.rect.move(self.cur_vector.x, self.cur_vector.y)
@@ -117,6 +124,8 @@ class Pacman:
         if can_move:
             self.board.check_pellet(new_rect)
             self.rect.topleft = new_rect.topleft
+            self.imageC = self.animC[self.anim_frame]
+            self.anim_frame = (self.anim_frame + 1) % 8
 
         self.update_switch.unlock(self.finished_updating)
 
@@ -157,28 +166,23 @@ class Ghost:
         self.thread.start()
 
     def __init_sprites__(self):
-        self.imageU = pygame.image.load(
-            "bin/sprites/ghost-4.gif").convert_alpha()
-        self.imageD = self.imageU
-        self.imageL = self.imageU
-        self.imageR = self.imageU
+        self.anim = []
 
-        self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
+        self.sprite_dim = (BLOCKSIZE, BLOCKSIZE)
 
-        self.imageU = pygame.transform.scale(
-            self.imageU, self.__sprite_dimensions__)
-        self.imageD = pygame.transform.scale(
-            self.imageD, self.__sprite_dimensions__)
-        self.imageL = pygame.transform.scale(
-            self.imageL, self.__sprite_dimensions__)
-        self.imageR = pygame.transform.scale(
-            self.imageR, self.__sprite_dimensions__)
+        for i in range(1, 7):
+            img = pygame.image.load(os.path.join(
+                SPRITE_PATH, "ghost-" + str(i) + ".gif")).convert_alpha()
+
+            self.anim.append(pygame.transform.scale(img, self.sprite_dim))
+
+        self.anim_frame = 0
+        self.imageC = self.anim[self.anim_frame]
 
     def reset(self):
-        self.imageC = self.imageR
-        self.imageN = self.imageC
         self.rect = self.imageC.get_rect()
         self.rect.topleft = self.start
+
         # Initialize movement buffer
         self.cur_vector = pygame.Vector2((0, 0))
         self.next_vector = pygame.Vector2((0, 0))
@@ -197,23 +201,18 @@ class Ghost:
 
     def stop(self):
         self.running = False
-        # while self.thread.is_alive():
         self.can_update.release()
 
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
         if self.pressed_keys[self.UP]:
             self.next_vector.xy = 0, -PACMAN_SPEED
-            self.imageN = self.imageU
         elif self.pressed_keys[self.DOWN]:
             self.next_vector.xy = 0, PACMAN_SPEED
-            self.imageN = self.imageD
         elif self.pressed_keys[self.LEFT]:
             self.next_vector.xy = -PACMAN_SPEED, 0
-            self.imageN = self.imageL
         elif self.pressed_keys[self.RIGHT]:
             self.next_vector.xy = PACMAN_SPEED, 0
-            self.imageN = self.imageR
 
         # Determine whether it can go in the new direction
         new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
@@ -223,7 +222,6 @@ class Ghost:
         # Update the current move if the new move is possible
         if can_move:
             self.cur_vector.xy = self.next_vector.xy
-            self.imageC = self.imageN
         # Otherwise try moving in the old direction
         else:
             new_rect = self.rect.move(self.cur_vector.x, self.cur_vector.y)
@@ -233,6 +231,8 @@ class Ghost:
         # Update position
         if can_move:
             self.rect.topleft = new_rect.topleft
+            self.imageC = self.anim[self.anim_frame]
+            self.anim_frame = (self.anim_frame + 1) % 6
 
         self.update_switch.unlock(self.finished_updating)
 
@@ -245,6 +245,7 @@ class Ghost:
             rect.bottom = HEIGHT - 2
         if rect.bottom >= HEIGHT:
             rect.top = 0
+
 
 class RandomGhost:
     def __init__(self, update_switch, finished_updating, all_threads,
@@ -262,17 +263,15 @@ class RandomGhost:
         self.mutex = threading.Semaphore(1)
 
         self.running = True
-        
+
         #self.pot_move = 0
         #self.pot_vector = pygame.Vector2((0, 0))
-        self.imageP = self.imageC
-        
+
         # Used to give time between wall collision and next move
         #self.hit_wall_time = 0
-        # Used to make sure that we don't try to crash back into the wall 
+        # Used to make sure that we don't try to crash back into the wall
         # immediately after moving away
         self.hit_wall = False
-
 
         # Start movement thread
         self.thread = threading.Thread(target=self.__run__)
@@ -280,28 +279,23 @@ class RandomGhost:
         self.thread.start()
 
     def __init_sprites__(self):
-        self.imageU = pygame.image.load(
-            "bin/sprites/ghost-4.gif").convert_alpha()
-        self.imageD = self.imageU
-        self.imageL = self.imageU
-        self.imageR = self.imageU
+        self.anim = []
 
-        self.__sprite_dimensions__ = (BLOCKSIZE, BLOCKSIZE)
+        self.sprite_dim = (BLOCKSIZE, BLOCKSIZE)
 
-        self.imageU = pygame.transform.scale(
-            self.imageU, self.__sprite_dimensions__)
-        self.imageD = pygame.transform.scale(
-            self.imageD, self.__sprite_dimensions__)
-        self.imageL = pygame.transform.scale(
-            self.imageL, self.__sprite_dimensions__)
-        self.imageR = pygame.transform.scale(
-            self.imageR, self.__sprite_dimensions__)
+        for i in range(1, 7):
+            img = pygame.image.load(os.path.join(
+                SPRITE_PATH, "ghost-" + str(i) + ".gif")).convert_alpha()
+
+            self.anim.append(pygame.transform.scale(img, self.sprite_dim))
+
+        self.anim_frame = 0
+        self.imageC = self.anim[self.anim_frame]
 
     def reset(self):
-        self.imageC = self.imageR
-        self.imageN = self.imageC
         self.rect = self.imageC.get_rect()
         self.rect.topleft = self.start
+
         # Initialize movement buffer
         self.cur_vector = pygame.Vector2((0, 0))
         self.next_vector = pygame.Vector2((0, 0))
@@ -323,44 +317,34 @@ class RandomGhost:
 
     def stop(self):
         self.running = False
-        # while self.thread.is_alive():
         self.can_update.release()
 
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
 
         if self.time == 100:
-            self.next_move = random.randint(0,3)
+            self.next_move = random.randint(0, 3)
             self.time = 0
         self.time += 1
 
-        # Used to determine values for potential turning 
+        # Used to determine values for potential turning
         #if self.pot_move == 0:
         #    self.pot_vector.xy = 0, -PACMAN_SPEED
-        #    self.imageP = self.imageU
         #elif self.pot_move == 1:
         #    self.pot_vector.xy = 0, PACMAN_SPEED
-        #    self.imageP = self.imageD
         #elif self.pot_move == 2:
         #    self.pot_vector.xy = -PACMAN_SPEED, 0
-        #    self.imageP = self.imageL
         #elif self.pot_move == 3:
         #    self.pot_vector.xy = PACMAN_SPEED, 0
-        #    self.imageP = self.imageR
-
 
         if self.next_move == 0:
             self.next_vector.xy = 0, -PACMAN_SPEED
-            self.imageN = self.imageU
         elif self.next_move == 1:
             self.next_vector.xy = 0, PACMAN_SPEED
-            self.imageN = self.imageD
         elif self.next_move == 2:
             self.next_vector.xy = -PACMAN_SPEED, 0
-            self.imageN = self.imageL
         elif self.next_move == 3:
             self.next_vector.xy = PACMAN_SPEED, 0
-            self.imageN = self.imageR
 
         # Determine whether it can go in the new direction
         new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
@@ -376,16 +360,15 @@ class RandomGhost:
         # Want to use the new move if possible
         #if can_moveP:
         #    self.cur_vector.xy = self.pot_vector.xy
-        #    self.imageC = self.imageP
         # Update the current move if the new move is possible
         if can_move:
             self.cur_vector.xy = self.next_vector.xy
-            self.imageC = self.imageN
         # Otherwise try moving in the old direction
         else:
             new_rect = self.rect.move(self.cur_vector.x, self.cur_vector.y)
             self.__try_teleport_through_tunnel__(new_rect)
-            can_move = self.board.check_wall_rand_ghost(new_rect, self.next_move)
+            can_move = self.board.check_wall_rand_ghost(
+                new_rect, self.next_move)
 
         # only changes value when contact with wall
         if not can_move:
@@ -399,6 +382,8 @@ class RandomGhost:
         #    self.rect.topleft = pot_rect.topleft
         if can_move:
             self.rect.topleft = new_rect.topleft
+            self.imageC = self.anim[self.anim_frame]
+            self.anim_frame = (self.anim_frame + 1) % 6
 
         self.update_switch.unlock(self.finished_updating)
 
@@ -422,6 +407,7 @@ class RandomGhost:
         if rect.bottom >= HEIGHT:
             rect.top = 0
 
+
 def get_rev(i):
     #return the opposite of the given direction
     if i == 0:
@@ -432,58 +418,3 @@ def get_rev(i):
         return 3
     else:
         return 2
-
-def main():
-    pygame.init()
-    clock = pygame.time.Clock()
-
-    screen = pygame.display.set_mode([WIDTH, HEIGHT])
-
-    player_update_switch = Lightswitch()
-    finished_updating = threading.Semaphore(1)
-
-    threads = []
-    players = []
-
-    player1 = Pacman(ARROW_CONTROLS, player_update_switch, finished_updating, threads)
-    players.append(player1)
-
-    player2 = Pacman(WASD_CONTROLS, player_update_switch, finished_updating, threads)
-    players.append(player2)
-
-    running = True
-
-    while running:
-        # Game end events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-                for player in players:
-                    player.stop()
-
-        finished_updating.acquire()
-        finished_updating.release()
-
-        screen.fill((0, 0, 0))
-
-        for player in players:
-            screen.blit(player.imageC, player.rect)
-
-        pygame.display.flip()
-
-        pressed_keys = pygame.key.get_pressed()
-
-        for player in players:
-            player.update_event(pressed_keys)
-
-        clock.tick(FPS)
-    pygame.quit()
-
-    for thread in threads:
-        thread.join()
-
-    print("Thank you for playing!")
-
-if __name__ == "__main__":
-    main()
