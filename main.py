@@ -76,6 +76,19 @@ def main():
                 running = False
                 for player in players:
                     player.stop()
+
+        # for ghost in ghosts:
+        #     if pygame.sprite.spritecollideany(pacmans[0], [ghost]):
+                # if ghost.is_weak():
+                    # ghost.reset()
+                    # board.score += 50
+        # loop through every ghost
+            # if pacman collides with ghost
+                # if ghost is weak
+                    # reset ghost; increase score
+                # else
+                    # reset all; decrease lives/check for loss
+
         if pygame.sprite.spritecollideany(pacmans[0], ghosts):
             board.minus_lives()
             lives -= 1
