@@ -142,9 +142,9 @@ class Pacman:
 
 class Ghost:
     def __init__(self, controls, update_switch, finished_updating, all_threads,
-                 board, start_pos):
+                 board, start_pos, color=GHOST_RED):
         # Initialize sprite image
-        self.__init_sprites__()
+        self.color = color
         self.board = board
         self.start = start_pos
         self.reset()
@@ -174,18 +174,36 @@ class Ghost:
             img = pygame.image.load(os.path.join(
                 SPRITE_PATH, "ghost-" + str(i) + ".gif")).convert_alpha()
 
+            # Change ghost color if necessary
+            for y in range(0, 16):
+                for x in range(0, 16):
+                    # default, red ghost body color
+                    if img.get_at((x, y)) == GHOST_RED:
+                        if self.weak:
+                            img.set_at((x, y), GHOST_WEAK)
+                        elif img.get_at((x, y)) == GHOST_RED:
+                            img.set_at((x, y), self.color)
+
             self.anim.append(pygame.transform.scale(img, self.sprite_dim))
 
         self.anim_frame = 0
         self.imageC = self.anim[self.anim_frame]
 
     def reset(self):
+        self.weak = False
+        self.weak_time = 0
+
+        self.__init_sprites__()
+
         self.rect = self.imageC.get_rect()
         self.rect.topleft = self.start
 
         # Initialize movement buffer
         self.cur_vector = pygame.Vector2((0, 0))
         self.next_vector = pygame.Vector2((0, 0))
+
+        self.next_move = 0
+        self.time = 0
 
     def update_event(self, pressed_keys):
         self.update_switch.lock(self.finished_updating)
@@ -197,12 +215,29 @@ class Ghost:
     def __run__(self):
         while self.running:
             self.can_update.acquire()
+            self.__update_weakness__()
             self.__update_pos__()
 
     def stop(self):
         self.running = False
         self.can_update.release()
 
+    def is_weak(self):
+        return self.weak
+
+    def set_weak(self):
+        self.weak = True
+        self.weak_time = 0
+
+    def __update_weakness__(self):
+        if self.weak:
+            self.weak_time += 1
+            if self.weak_time == 1:
+                self.__init_sprites__()
+            elif self.weak_time == 360:
+                self.weak = False
+                self.__init_sprites__()
+        
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
         if self.pressed_keys[self.UP]:
@@ -252,7 +287,6 @@ class RandomGhost:
                  board, start_pos, color=GHOST_RED):
         # Initialize sprite image
         self.color = color
-        self.__init_sprites__()
         self.board = board
         self.start = start_pos
         self.reset()
@@ -293,7 +327,10 @@ class RandomGhost:
                 for x in range(0, 16):
                     # default, red ghost body color
                     if img.get_at((x, y)) == GHOST_RED:
-                        img.set_at((x, y), self.color)
+                        if self.weak:
+                            img.set_at((x, y), GHOST_WEAK)
+                        elif img.get_at((x, y)) == GHOST_RED:
+                            img.set_at((x, y), self.color)
 
             self.anim.append(pygame.transform.scale(img, self.sprite_dim))
 
@@ -301,6 +338,11 @@ class RandomGhost:
         self.imageC = self.anim[self.anim_frame]
 
     def reset(self):
+        self.weak = False
+        self.weak_time = 0
+
+        self.__init_sprites__()
+
         self.rect = self.imageC.get_rect()
         self.rect.topleft = self.start
 
@@ -310,6 +352,7 @@ class RandomGhost:
 
         self.next_move = 0
         self.time = 0
+        
 
     def update_event(self, pressed_keys):
         self.update_switch.lock(self.finished_updating)
@@ -321,11 +364,29 @@ class RandomGhost:
     def __run__(self):
         while self.running:
             self.can_update.acquire()
+            self.__update_weakness__()
             self.__update_pos__()
 
     def stop(self):
         self.running = False
         self.can_update.release()
+
+    def is_weak(self):
+        return self.weak
+
+    def set_weak(self):
+        self.weak = True
+        self.weak_time = 0
+
+    def __update_weakness__(self):
+        if self.weak:
+            self.weak_time += 1
+            if self.weak_time == 1:
+                self.__init_sprites__()
+            elif self.weak_time == 360:
+                self.weak = False
+                self.__init_sprites__()
+            
 
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
@@ -335,6 +396,7 @@ class RandomGhost:
             self.time = 0
         self.time += 1
 
+        
         # Used to determine values for potential turning
         #if self.pot_move == 0:
         #    self.pot_vector.xy = 0, -PACMAN_SPEED

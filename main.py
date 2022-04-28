@@ -52,6 +52,10 @@ def main():
                          threads, board, GHOST_START_POS, GHOST_LIGHT_BLUE)
 
     pacmans.append(pacman1)
+    ghosts.append(ghost2)
+    ghosts.append(ghost3)
+    ghosts.append(ghost4)
+
     if player_num == 2:
         ghost1 = Ghost(WASD_CONTROLS, player_update_switch,
                       finished_updating, threads, board, GHOST_START_POS)
@@ -60,10 +64,8 @@ def main():
         ghost5 = RandomGhost(player_update_switch,
                       finished_updating, threads, board, GHOST_START_POS)
         ghosts.append(ghost5)
-    ghosts.append(ghost2)
-    ghosts.append(ghost3)
-    ghosts.append(ghost4)
-    
+
+    board.add_ghost_list(ghosts)
     players = pacmans + ghosts
 
     running = True
@@ -77,31 +79,25 @@ def main():
                 for player in players:
                     player.stop()
 
-        # for ghost in ghosts:
-        #     if pygame.sprite.spritecollideany(pacmans[0], [ghost]):
-                # if ghost.is_weak():
-                    # ghost.reset()
-                    # board.score += 50
-        # loop through every ghost
-            # if pacman collides with ghost
-                # if ghost is weak
-                    # reset ghost; increase score
-                # else
-                    # reset all; decrease lives/check for loss
-
-        if pygame.sprite.spritecollideany(pacmans[0], ghosts):
-            board.minus_lives()
-            lives -= 1
-            if not lives:
-                winner = "Ghost"
-                running = False
-                for player in players:
-                    player.stop()
-            #Respawn players
-            pacmans[0].reset()
-            for g in ghosts:
-                g.reset()
-        if board.get_score() == MAX_SCORE:
+        for ghost in ghosts:
+            if pygame.sprite.spritecollideany(pacmans[0], [ghost]):
+                if ghost.is_weak():
+                    ghost.reset()
+                    board.add_score(200)
+                else:
+                    board.minus_lives()
+                    lives -= 1
+                    if not lives:
+                        winner = "Ghost"
+                        running = False
+                        for player in players:
+                            player.stop()
+                    #Respawn players
+                    pacmans[0].reset()
+                    for g in ghosts:
+                        g.reset()
+            
+        if board.check_if_no_pellet():
             winner = "Pac-Man"
             running = False
             for player in players:
@@ -124,7 +120,7 @@ def main():
             player.update_event(pressed_keys)
 
         clock.tick(FPS)
-    gameOver(screen, board)
+    gameOver(screen, board, winner)
     pygame.quit()
 
     for thread in threads:

@@ -1,12 +1,6 @@
 import pygame  
 from settings import *
 
-# % - wall
-# - - gate
-# o - empty
-# a - pellet
-# s - super pellet
-
 class Board():
 
     def __init__(self, scr, board=BOARD, block_size=BLOCKSIZE, \
@@ -20,10 +14,26 @@ class Board():
         self.score = 0
         self.blink = 0
         self.lives = START_LIVES
+        self.pellet = PELLET_NUM
+
+    def add_ghost_list(self, ghosts):
+        self.ghosts = ghosts
+
+    def all_ghosts_weak(self):
+        for ghost in self.ghosts:
+            ghost.set_weak()
+
+    def check_if_no_pellet(self):
+        if self.pellet == 0:
+            return True
+        return False
 
     def minus_lives(self):
         """ Decrement a life """
         self.lives -= 1
+
+    def add_score(self, score):
+        self.score += score
         
     def get_score(self):
         """ Get pac-man's pellet score """
@@ -37,6 +47,11 @@ class Board():
         """ Change the symbol to v at given coord """
         self.board[coord[0]][coord[1]] = v
         
+    def switch_weakness(self, i):
+        if self.weakness[i]:
+            self.weakness = False
+        else:
+            self.weakness = True
 
     def check_wall(self, rect):
         """ Check if colliding with wall """
@@ -82,29 +97,41 @@ class Board():
 
         if self.get_block(top_left) == 'a':
             self.put_block(top_left, 'o')
-            self.score += 1
+            self.pellet -= 1
+            self.score += 10
         if self.get_block(bottom_left) == 'a':
             self.put_block(bottom_left, 'o')
-            self.score += 1
+            self.pellet -= 1
+            self.score += 10
         if self.get_block(top_right) == 'a':
             self.put_block(top_right, 'o')
-            self.score += 1
+            self.pellet -= 1
+            self.score += 10
         if self.get_block(bottom_right) == 'a':
             self.put_block(bottom_right, 'o')
-            self.score += 1
+            self.pellet -= 1
+            self.score += 10
 
         if self.get_block(top_left) == 's':
+            self.all_ghosts_weak()
             self.put_block(top_left, 'o')
-            self.score += 5
+            self.pellet -= 1
+            self.score += 50
         if self.get_block(bottom_left) == 's':
+            self.all_ghosts_weak()
             self.put_block(bottom_left, 'o')
-            self.score += 5
+            self.pellet -= 1
+            self.score += 50
         if self.get_block(top_right) == 's':
+            self.all_ghosts_weak()
             self.put_block(top_right, 'o')
-            self.score += 5
+            self.pellet -= 1
+            self.score += 50
         if self.get_block(bottom_right) == 's':
+            self.all_ghosts_weak()
             self.put_block(bottom_right, 'o')
-            self.score += 5
+            self.pellet -= 1
+            self.score += 50
 
     def get_corners(self, rect, offset):
         """ Helper function for the check functions, get the block of the four corners """
@@ -212,7 +239,7 @@ class Board():
         #Display score and lives
         font = pygame.font.Font("bin/font/game over.ttf", 36)
 
-        score_text = font.render("Score: "+str(self.score)+"/"+str(MAX_SCORE),\
+        score_text = font.render("Score: "+str(self.score),\
                                     True, RED)
         scr.blit(score_text, [10, 10])
 

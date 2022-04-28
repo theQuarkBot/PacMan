@@ -46,8 +46,14 @@ WHITE = (255, 255, 255)
 WALL_COLOR = (0, 0, 255)
 PELLET_COLOR = (255, 255, 0)
 
-MAX_SCORE = 203
+PELLET_NUM = 170
 START_LIVES = 3
+
+# % - wall
+# - - gate
+# o - empty
+# a - pellet
+# s - super pellet
 
 BOARD = [
   ['o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o','o'],
