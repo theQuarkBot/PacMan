@@ -156,11 +156,13 @@ class Pacman(Character):
         self.update_switch.unlock(self.finished_updating)
 
 class Ghost(Character):
-
+    # initializes the image animation for the ghosts
     def __init_sprites__(self):
         self.anim = []
 
         self.sprite_dim = (BLOCKSIZE, BLOCKSIZE)
+        # used to hold the images so image colors can be changed without 
+        # changing properties of the ghost
         self.images = []
         for i in range(1, 7):
             img = pygame.image.load(os.path.join(
@@ -214,12 +216,16 @@ class Ghost(Character):
         self.weak_time = 0
 
     def __update_weakness__(self):
+        # total weakness time is 6 seconds
         if self.weak:
             self.weak_time += 1
             if self.weak_time == 1:
                 self.__init_sprites__()
                 self.speed = GHOST_WEAK_SPEED
+            # flashes for the last 2 seconds so pacman knows that weak state 
+            # is about to end
             elif self.weak_time >= 240 and self.weak_time < 360:
+                # image color is changed every quarter second
                 if self.weak_time % 15 == 0:
                     for i in range(len(self.images)):
                         img = self.images[i]
