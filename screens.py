@@ -75,7 +75,7 @@ def gameOver(scr, board, winner="Tie"):
     gameOver = fontTitle.render("Game Over", True, PELLET_COLOR)
     gameOver_rect = gameOver.get_rect(center=(width/2, height/2))
 
-    win = fontText.render("Winner is the " + str(winner) + "!", True, PELLET_COLOR)
+    win = fontText.render("Winner is " + str(winner) + "!", True, PELLET_COLOR)
     if (winner == "Tie"):
         win = fontText.render("It's a tie!", True, PELLET_COLOR)
     win_rect = win.get_rect(center=(width/2, 4*height/7))
