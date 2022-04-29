@@ -5,7 +5,6 @@ from thread_safe_classes import Lightswitch
 from settings import *
 from pacman_class import Pacman, Ghost, RandomGhost
 from board import Board
-from player import PacmanTesting, GhostTesting
 from screens import *
 
 def main():
