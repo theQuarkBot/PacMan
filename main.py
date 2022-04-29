@@ -41,14 +41,14 @@ def main():
     #                  finished_updating, threads, board, PACMAN_START_POS)
     # ghost1 = GhostTesting(WASD_CONTROLS, player_update_switch,
     #                   finished_updating, threads, board, GHOST_START_POS)
-    pacman1 = Pacman(ARROW_CONTROLS, player_update_switch,
-                     finished_updating, threads, board, PACMAN_START_POS)
+    pacman1 = Pacman(player_update_switch, finished_updating, 
+                     threads, board, PACMAN_START_POS, ARROW_CONTROLS)
     ghost2 = RandomGhost(player_update_switch, finished_updating,
-                         threads, board, GHOST_START_POS, GHOST_PINK)
+                         threads, board, GHOST_START_POS, None, GHOST_PINK)
     ghost3 = RandomGhost(player_update_switch, finished_updating,
-                         threads, board, GHOST_START_POS, GHOST_ORANGE)
+                         threads, board, GHOST_START_POS, None, GHOST_ORANGE)
     ghost4 = RandomGhost(player_update_switch, finished_updating,
-                         threads, board, GHOST_START_POS, GHOST_LIGHT_BLUE)
+                         threads, board, GHOST_START_POS, None, GHOST_LIGHT_BLUE)
 
     pacmans.append(pacman1)
     ghosts.append(ghost2)
@@ -56,12 +56,12 @@ def main():
     ghosts.append(ghost4)
 
     if player_num == 2:
-        ghost1 = Ghost(WASD_CONTROLS, player_update_switch,
-                      finished_updating, threads, board, GHOST_START_POS)
+        ghost1 = Ghost(player_update_switch, finished_updating, 
+                       threads, board, GHOST_START_POS, WASD_CONTROLS)
         ghosts.append(ghost1)
     else:
         ghost5 = RandomGhost(player_update_switch,
-                      finished_updating, threads, board, GHOST_START_POS)
+                      finished_updating, threads, board, None, GHOST_START_POS)
         ghosts.append(ghost5)
 
     board.add_ghost_list(ghosts)
