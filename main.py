@@ -10,74 +10,58 @@ from screens import *
 def main():
     pygame.init()
     pygame.font.init()
-
     pygame.display.set_caption('Pac-Man')
-
     clock = pygame.time.Clock()
-
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
-
     player_num = startScreen(screen)
-
     winner = "Tie"
-
     board = Board(screen)
     lives = START_LIVES
 
-    # Mutex and ligthswitch to support 
+    # Mutex and ligthswitch for update synchronization
     player_update_switch = Lightswitch()
     finished_updating = threading.Semaphore(1)
 
-
-    # Create a list of players
-    threads = []
-    pacmans = []
-    ghosts = []
-
-    players = []
-
-    #The Start positions are not used currently
-    # pacman1 = PacmanTesting(ARROW_CONTROLS, player_update_switch,
-    #                  finished_updating, threads, board, PACMAN_START_POS)
-    # ghost1 = GhostTesting(WASD_CONTROLS, player_update_switch,
-    #                   finished_updating, threads, board, GHOST_START_POS)
-    pacman1 = Pacman(player_update_switch, finished_updating, 
-                     threads, board, PACMAN_START_POS, ARROW_CONTROLS)
-    ghost2 = RandomGhost(player_update_switch, finished_updating,
-                         threads, board, GHOST_START_POS, None, GHOST_PINK)
-    ghost3 = RandomGhost(player_update_switch, finished_updating,
-                         threads, board, GHOST_START_POS, None, GHOST_ORANGE)
-    ghost4 = RandomGhost(player_update_switch, finished_updating,
-                         threads, board, GHOST_START_POS, None, GHOST_LIGHT_BLUE)
-
-    pacmans.append(pacman1)
-    ghosts.append(ghost2)
-    ghosts.append(ghost3)
-    ghosts.append(ghost4)
-
-    if player_num == 2:
-        ghost1 = Ghost(player_update_switch, finished_updating, 
-                       threads, board, GHOST_START_POS, WASD_CONTROLS)
-        ghosts.append(ghost1)
-    else:
-        ghost5 = RandomGhost(player_update_switch, finished_updating, 
-                             threads, board, GHOST_START_POS)
-        ghosts.append(ghost5)
+    # Generate pacman and all ghosts
+    threads, pacmans, ghosts = generate_characters(
+        board, player_num, player_update_switch, finished_updating)
+    characters = pacmans + ghosts
 
     board.add_ghost_list(ghosts)
-    players = pacmans + ghosts
 
+    # Run the game!
+    winner = game_loop(characters, ghosts, pacmans, board, finished_updating,
+        screen, clock, lives)
+    
+    # Ensure all threads have stopped
+    for thread in threads:
+        thread.join()
+
+    # Display game-over screen
+    gameOver(screen, board, winner)
+
+    pygame.quit()
+
+    print("Thank you for playing!")
+
+
+def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
+              clock, lives):
     running = True
+
+    def stop_characters():
+        for character in characters:
+            character.stop()
 
     # Game loop
     while running:
-        # Game end events
+        # End game with tie if user exits program
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                for player in players:
-                    player.stop()
+                stop_characters()
 
+        # Check for any collisions; kill pacman or end game
         for ghost in ghosts:
             if pygame.sprite.spritecollideany(pacmans[0], [ghost]):
                 if ghost.is_weak():
@@ -86,46 +70,78 @@ def main():
                 else:
                     board.minus_lives()
                     lives -= 1
-                    if not lives:
+                    if lives == 0:
                         winner = "Ghost"
                         running = False
-                        for player in players:
-                            player.stop()
-                    #Respawn players
+                        stop_characters()
+
+                    #Respawn characters
                     pacmans[0].reset()
-                    for g in ghosts:
-                        g.reset()
+                    for ghost in ghosts:
+                        ghost.reset()
             
+        # Check for pacman win
         if board.check_if_no_pellet():
             winner = "Pac-Man"
             running = False
-            for player in players:
-                player.stop()
+            stop_characters()
 
-        # Ensure that all players are not currently updating
+        # Ensure that all characters are not currently updating
         finished_updating.acquire()
         finished_updating.release()
 
-        # Draw the board and the players (non-concurrently)
+        # Draw the board and the characters (non-concurrently)
         screen.fill((0, 0, 0))
         board.run()
-        for player in players:
-            screen.blit(player.imageC, player.rect)
+        for character in characters:
+            screen.blit(character.imageC, character.rect)
         pygame.display.flip()
 
-        # Update the position of each player
+        # Update the position of each character
         pressed_keys = pygame.key.get_pressed()
-        for player in players:
-            player.update_event(pressed_keys)
+        for character in characters:
+            character.update_event(pressed_keys)
 
         clock.tick(FPS)
-    gameOver(screen, board, winner)
-    pygame.quit()
 
-    for thread in threads:
-        thread.join()
+    return winner
 
-    print("Thank you for playing!")
+
+def generate_characters(board, player_num, player_update_switch, finished_updating):
+    # Make lists of threads and characters
+    threads = []
+    pacmans = []
+    ghosts = []
+
+    # Generate pacmans. Duplicate with appropriate controls for more
+    pacman = Pacman(player_update_switch, finished_updating,
+                        threads, board, PACMAN_START_POS, ARROW_CONTROLS)
+    pacmans.append(pacman)
+
+    # First ghost is player-controlled or computer controlled
+    ghost1 = None
+    if player_num == 2:
+        ghost1 = Ghost(player_update_switch, finished_updating,
+                       threads, board, GHOST_START_POS, WASD_CONTROLS)
+        ghosts.append(ghost1)
+    else:
+        ghost1 = RandomGhost(player_update_switch, finished_updating,
+                             threads, board, GHOST_START_POS)
+        ghosts.append(ghost1)
+
+    # Generate the rest of the ghosts
+    ghost2 = RandomGhost(player_update_switch, finished_updating, threads,
+                         board, GHOST_START_POS, None, GHOST_PINK)
+    ghost3 = RandomGhost(player_update_switch, finished_updating, threads,
+                         board, GHOST_START_POS, None, GHOST_ORANGE)
+    ghost4 = RandomGhost(player_update_switch, finished_updating, threads,
+                         board, GHOST_START_POS, None, GHOST_LIGHT_BLUE)
+
+    ghosts.append(ghost2)
+    ghosts.append(ghost3)
+    ghosts.append(ghost4)
+
+    return threads, pacmans, ghosts
 
 if __name__ == '__main__':
     main()

@@ -15,9 +15,8 @@ from pygame.locals import (
 
 FPS = 60
 
-START_STATE = "start"
-PLAYING_STATE = "playing"
-GAME_OVER_STATE = "game over"
+NUM_PACMAN = 1
+NUM_GHOSTS = 4
 
 ARROW_CONTROLS = (K_UP, K_DOWN, K_LEFT, K_RIGHT)
 WASD_CONTROLS = (K_w, K_s, K_a, K_d)
