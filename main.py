@@ -60,8 +60,8 @@ def main():
                        threads, board, GHOST_START_POS, WASD_CONTROLS)
         ghosts.append(ghost1)
     else:
-        ghost5 = RandomGhost(player_update_switch,
-                      finished_updating, threads, board, None, GHOST_START_POS)
+        ghost5 = RandomGhost(player_update_switch, finished_updating, 
+                             threads, board, GHOST_START_POS)
         ghosts.append(ghost5)
 
     board.add_ghost_list(ghosts)
