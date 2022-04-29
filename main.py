@@ -3,7 +3,7 @@ import pygame
 import threading
 from thread_safe_classes import Lightswitch
 from settings import *
-from pacman_class import Pacman, Ghost, RandomGhost
+from character_classes import Pacman, Ghost, RandomGhost
 from board import Board
 from screens import *
 
