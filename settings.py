@@ -69,7 +69,7 @@ BOARD = [
 count = 0
 for row in BOARD:
     for item in row:
-       if item == 'a':
+       if item == 'a' or item == 's':
          count += 1
 
 PELLET_NUM = count

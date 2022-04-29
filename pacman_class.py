@@ -2,8 +2,6 @@ from distutils.dep_util import newer
 import os, sys, random, pygame, threading
 from settings import *
 from abc import ABC, abstractmethod
-# from thread_safe_classes import Lightswitch
-# from board import Board
 import random
 
 SPRITE_PATH = os.path.join(sys.path[0], "bin", "sprites")
@@ -223,6 +221,8 @@ class Ghost(Character):
             elif self.weak_time == 360:
                 self.weak = False
                 self.__init_sprites__()
+
+                # Reset speed
                 self.speed = GHOST_SPEED
         
     def __update_pos__(self):
