@@ -31,7 +31,7 @@ def main():
 
     # Run the game!
     winner = game_loop(characters, ghosts, pacmans, board, finished_updating,
-        screen, clock, lives)
+        screen, clock, lives, winner)
     
     # Ensure all threads have stopped
     for thread in threads:
@@ -46,7 +46,7 @@ def main():
 
 
 def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
-              clock, lives):
+              clock, lives, winner):
     running = True
 
     def stop_characters():
@@ -59,6 +59,7 @@ def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                winner = "Tie"
                 stop_characters()
 
         # Check for any collisions; kill pacman or end game
