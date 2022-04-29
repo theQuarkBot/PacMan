@@ -116,19 +116,21 @@ class Pacman(Character):
         self.cur_vector = pygame.Vector2((0, 0))
         self.next_vector = pygame.Vector2((0, 0))
 
+        self.speed = PACMAN_SPEED
+
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
         if self.pressed_keys[self.UP]:
-            self.next_vector.xy = 0, -PACMAN_SPEED
+            self.next_vector.xy = 0, -self.speed
             self.animN = self.animU
         elif self.pressed_keys[self.DOWN]:
-            self.next_vector.xy = 0, PACMAN_SPEED
+            self.next_vector.xy = 0, self.speed
             self.animN = self.animD
         elif self.pressed_keys[self.LEFT]:
-            self.next_vector.xy = -PACMAN_SPEED, 0
+            self.next_vector.xy = -self.speed, 0
             self.animN = self.animL
         elif self.pressed_keys[self.RIGHT]:
-            self.next_vector.xy = PACMAN_SPEED, 0
+            self.next_vector.xy = self.speed, 0
             self.animN = self.animR
 
         # Determine whether it can go in the new direction
@@ -184,6 +186,7 @@ class Ghost(Character):
     def reset(self):
         self.weak = False
         self.weak_time = 0
+        self.speed = GHOST_SPEED
 
         self.__init_sprites__()
 
@@ -216,20 +219,22 @@ class Ghost(Character):
             self.weak_time += 1
             if self.weak_time == 1:
                 self.__init_sprites__()
+                self.speed = GHOST_WEAK_SPEED
             elif self.weak_time == 360:
                 self.weak = False
                 self.__init_sprites__()
+                self.speed = GHOST_SPEED
         
     def __update_pos__(self):
         # Save the keypresses and next image for next velocity change
         if self.pressed_keys[self.UP]:
-            self.next_vector.xy = 0, -PACMAN_SPEED
+            self.next_vector.xy = 0, -self.speed
         elif self.pressed_keys[self.DOWN]:
-            self.next_vector.xy = 0, PACMAN_SPEED
+            self.next_vector.xy = 0, self.speed
         elif self.pressed_keys[self.LEFT]:
-            self.next_vector.xy = -PACMAN_SPEED, 0
+            self.next_vector.xy = -self.speed, 0
         elif self.pressed_keys[self.RIGHT]:
-            self.next_vector.xy = PACMAN_SPEED, 0
+            self.next_vector.xy = self.speed, 0
 
         # Determine whether it can go in the new direction
         new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)
@@ -261,13 +266,13 @@ class RandomGhost(Ghost):
         self.time += 1
 
         if self.next_move == 0:
-            self.next_vector.xy = 0, -PACMAN_SPEED
+            self.next_vector.xy = 0, -self.speed
         elif self.next_move == 1:
-            self.next_vector.xy = 0, PACMAN_SPEED
+            self.next_vector.xy = 0, self.speed
         elif self.next_move == 2:
-            self.next_vector.xy = -PACMAN_SPEED, 0
+            self.next_vector.xy = -self.speed, 0
         elif self.next_move == 3:
-            self.next_vector.xy = PACMAN_SPEED, 0
+            self.next_vector.xy = self.speed, 0
 
         # Determine whether it can go in the new direction
         new_rect = self.rect.move(self.next_vector.x, self.next_vector.y)

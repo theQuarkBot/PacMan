@@ -23,6 +23,8 @@ ARROW_CONTROLS = (K_UP, K_DOWN, K_LEFT, K_RIGHT)
 WASD_CONTROLS = (K_w, K_s, K_a, K_d)
 
 PACMAN_SPEED = 2
+GHOST_SPEED = 2
+GHOST_WEAK_SPEED = 1
 
 GHOST_RED = (255, 0, 0, 255)          # red ghost
 GHOST_PINK = (255, 128, 255, 255)     # pink ghost
@@ -72,7 +74,6 @@ for row in BOARD:
 
 PELLET_NUM = count
 START_LIVES = 3
-
 
 BLOCKSIZE = 32
 NUM_COLS = len(BOARD[0])
