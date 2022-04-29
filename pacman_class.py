@@ -161,7 +161,7 @@ class Ghost(Character):
         self.anim = []
 
         self.sprite_dim = (BLOCKSIZE, BLOCKSIZE)
-
+        self.images = []
         for i in range(1, 7):
             img = pygame.image.load(os.path.join(
                 SPRITE_PATH, "ghost-" + str(i) + ".gif")).convert_alpha()
@@ -177,6 +177,7 @@ class Ghost(Character):
                             img.set_at((x, y), self.color)
 
             self.anim.append(pygame.transform.scale(img, self.sprite_dim))
+            self.images.append(img)
 
         self.anim_frame = 0
         self.imageC = self.anim[self.anim_frame]
@@ -218,6 +219,19 @@ class Ghost(Character):
             if self.weak_time == 1:
                 self.__init_sprites__()
                 self.speed = GHOST_WEAK_SPEED
+            elif self.weak_time >= 240 and self.weak_time < 360:
+                if self.weak_time % 15 == 0:
+                    for i in range(len(self.images)):
+                        img = self.images[i]
+                        for y in range(0, 16):
+                            for x in range(0, 16):
+                                if img.get_at((x, y)) == GHOST_WEAK:
+                                    img.set_at((x, y), self.color)
+                                elif img.get_at((x,y)) == self.color:
+                                    img.set_at((x,y), GHOST_WEAK)
+                        self.images[i] = img
+                        self.anim[i] = pygame.transform.scale(img, self.sprite_dim)
+
             elif self.weak_time == 360:
                 self.weak = False
                 self.__init_sprites__()
