@@ -222,6 +222,11 @@ class Ghost(Character):
                 self.weak = False
                 self.__init_sprites__()
 
+                if self.rect.top % 2 == 1:
+                    self.rect.top -= 1
+                if self.rect.left % 2 == 1:
+                    self.rect.left -= 1
+
                 # Reset speed
                 self.speed = GHOST_SPEED
         
