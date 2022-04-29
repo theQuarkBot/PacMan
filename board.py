@@ -56,7 +56,7 @@ class Board():
     def check_wall(self, rect):
         """ Check if colliding with wall """
         (top_left, bottom_left, top_right, bottom_right) = \
-                                            self.get_corners(rect, 1)
+                                            self.get_corners(rect, 0.5)
 
         if self.get_block(top_left) == '%' \
         or self.get_block(bottom_left) in '%' \
@@ -68,7 +68,7 @@ class Board():
     def check_wall_rand_ghost(self, rect, dirc):
         """ Check if colliding with wall for random ghosts, one-way gate """
         (top_left, bottom_left, top_right, bottom_right) = \
-                                            self.get_corners(rect, 1)
+                                            self.get_corners(rect, 0.5)
         # Check if going down into gate
 
         if self.get_block(top_left) == '-' \
