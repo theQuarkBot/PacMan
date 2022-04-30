@@ -17,13 +17,16 @@ class Board():
         self.pellet = PELLET_NUM
 
     def add_ghost_list(self, ghosts):
+        """ Store list of ghosts """
         self.ghosts = ghosts
 
     def all_ghosts_weak(self):
+        """ Turn all ghosts into weak state """
         for ghost in self.ghosts:
             ghost.set_weak()
 
     def check_if_no_pellet(self):
+        """ Return True if pellet is 0 """
         if self.pellet == 0:
             return True
         return False
@@ -33,6 +36,7 @@ class Board():
         self.lives -= 1
 
     def add_score(self, score):
+        """ Increment score by the given value """
         self.score += score
         
     def get_score(self):
@@ -46,12 +50,6 @@ class Board():
     def put_block(self, coord, v):
         """ Change the symbol to v at given coord """
         self.board[coord[0]][coord[1]] = v
-        
-    def switch_weakness(self, i):
-        if self.weakness[i]:
-            self.weakness = False
-        else:
-            self.weakness = True
 
     def check_wall(self, rect):
         """ Check if colliding with wall """

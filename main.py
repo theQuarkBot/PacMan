@@ -18,6 +18,10 @@ def main():
     board = Board(screen)
     lives = START_LIVES
 
+    pygame.mixer.init()
+    pygame.mixer.music.load('bin/music/pacman.mp3')
+    pygame.mixer.music.play(-1, 0.0)
+
     # Mutex and ligthswitch for update synchronization
     player_update_switch = Lightswitch()
     finished_updating = threading.Semaphore(1)
@@ -76,6 +80,7 @@ def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
                         running = False
                         stop_characters()
 
+                    pygame.mixer.music.play(-1, 0.0)
                     #Respawn characters
                     pacmans[0].reset()
                     for ghost in ghosts:
