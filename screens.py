@@ -9,6 +9,7 @@ class Button:
         self.bg = bg
         self.render(self.text, self.bg)
     def render(self, text, bg):
+    """ construct the button """
         self.rendered = self.font.render(text, True, WHITE)
         self.size = self.rendered.get_size()
         self.surface = pygame.Surface(self.size)
@@ -16,8 +17,10 @@ class Button:
         self.surface.blit(self.rendered, (0, 0))
         self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
     def show(self, scr):
+    """ display the button """
         scr.blit(self.surface, (self.x, self.y))
     def hover_click(self, event):
+    """ detect hover and click of buttons """
         x, y = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEMOTION:
             if self.rect.collidepoint(x, y):
