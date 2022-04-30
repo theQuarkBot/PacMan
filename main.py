@@ -18,6 +18,8 @@ def main():
     clock = pygame.time.Clock()
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     player_num = startScreen(screen)
+    if player_num <= 0:
+        exit(0)
     winner = "Tie"
     board = Board(screen)
     lives = START_LIVES

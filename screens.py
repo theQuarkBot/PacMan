@@ -55,6 +55,7 @@ def startScreen(scr):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit() 
+                return -1
             if b1.hover_click(event):
                 return 1
             if b2.hover_click(event):
