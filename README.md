@@ -31,7 +31,8 @@ race conditions or deadlocks.
 
 Instructions on how to run:
 1. Have all files and bin in one folder
-2. Call python3 main.py
-3. Pick if 1 player or 2 player mode wants to play, if 2 find a friend.
-4. Pacman moves with arrow keys and Ghost moves with WASD
-5. Play the game!
+2. Make sure you are able to run pygame on your device
+3. Call python3 main.py
+4. Pick if 1 player or 2 player mode wants to play, if 2 find a friend.
+5. Pacman moves with arrow keys and Ghost moves with WASD
+6. Play the game!
