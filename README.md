@@ -10,22 +10,22 @@ Also contains fonts used for our screens.
 board.py: Contains the Board class. When called, creates a pygame screen with 
 our board/map on it.
 
-main.py: Is the center that links all other files together. Creates all objects 
-that are needed for the game and has the while loop that runs until the game is 
+main.py: Is the center that links all other files together. Creates all objects
+that are needed for the game and has the while loop that runs until the game is
 over.
 
 pacman_class.py: Contains the Pacman, Ghost, and RandomGhost classes. All 
-functionalities of each object are declared here with all movement and collision
-parameters(with walls) are here.
+functionalities of each object are declared here with all movement and 
+collision parameters(with walls) are here.
 
 screens.py: Contains buttons for the start screen, the start screen and the 
 gameover screen. Used by main.py for us to know which version of the game the 
 user wants to play.
 
-settings.py: Contains constant values that every other class uses, such as game 
+settings.py: Contains constant values that every other class uses, such as game
 states, pygame controls, starting locations of pacman and ghosts, etc.
 
-thread_safe_classes.py: Contains two classes that are used by the Pacman, Ghost 
+thread_safe_classes.py: Contains two classes that are used by the Pacman, Ghost
 and RandomGhost classes in order for us to thread the objects safely without 
 race conditions or deadlocks.
 
