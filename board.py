@@ -2,7 +2,6 @@ import pygame
 from settings import *
 
 class Board():
-
     def __init__(self, scr, board=BOARD, block_size=BLOCKSIZE, \
             wall_color=WALL_COLOR, pellet_color=PELLET_COLOR):
         """ Init a board with default of spec in settings.py """
@@ -55,7 +54,6 @@ class Board():
         """ Check if colliding with wall """
         (top_left, bottom_left, top_right, bottom_right) = \
                                             self.get_corners(rect, 0.5)
-
         if self.get_block(top_left) == '%' \
         or self.get_block(bottom_left) in '%' \
         or self.get_block(top_right) == '%' \
