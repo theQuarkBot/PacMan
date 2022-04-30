@@ -33,14 +33,17 @@ class Character(ABC):
 
     @abstractmethod
     def __init_sprites__(self):
+        """ Creates the sprite for the character """
         pass
 
     @abstractmethod
     def reset(self):
+        """ Reset the character to its initial location and state """
         pass
 
 
     def update_event(self, pressed_keys):
+        """ Update event """
         self.update_switch.lock(self.finished_updating)
 
         self.pressed_keys = pressed_keys
@@ -49,18 +52,22 @@ class Character(ABC):
 
     @abstractmethod
     def __update_pos__(self):
+        """ Update position of character """
         pass
 
     def __run__(self):
+        """ Main loop for running each character """
         while self.running:
             self.can_update.acquire()
             self.__update_pos__()
 
     def stop(self):
+        """ Stop running the character """
         self.running = False
         self.can_update.release()
 
     def __try_teleport_through_tunnel__(self, rect):
+        """ Allow the character to pass through tunnel """
         if rect.left < 0:
             rect.right = WIDTH - 2
         if rect.right >= WIDTH:
@@ -209,13 +216,16 @@ class Ghost(Character):
 
 
     def is_weak(self):
+        """ Check if ghost is weak """
         return self.weak
 
     def set_weak(self):
+        """ Set ghost to weak """
         self.weak = True
         self.weak_time = 0
 
     def __update_weakness__(self):
+        """ Maintain start and end weakness """
         # total weakness time is 6 seconds
         if self.weak:
             self.weak_time += 1
@@ -332,7 +342,7 @@ class RandomGhost(Ghost):
         self.update_switch.unlock(self.finished_updating)
         
 def get_rev(i):
-    #return the opposite of the given direction
+    """ return the opposite of the given direction """
     if i == 0:
         return 1
     elif i == 1:

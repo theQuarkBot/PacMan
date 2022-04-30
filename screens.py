@@ -9,7 +9,7 @@ class Button:
         self.bg = bg
         self.render(self.text, self.bg)
     def render(self, text, bg):
-    """ construct the button """
+        """ construct the button """
         self.rendered = self.font.render(text, True, WHITE)
         self.size = self.rendered.get_size()
         self.surface = pygame.Surface(self.size)
@@ -17,10 +17,10 @@ class Button:
         self.surface.blit(self.rendered, (0, 0))
         self.rect = pygame.Rect(self.x, self.y, self.size[0], self.size[1])
     def show(self, scr):
-    """ display the button """
+        """ display the button """
         scr.blit(self.surface, (self.x, self.y))
     def hover_click(self, event):
-    """ detect hover and click of buttons """
+        """ detect hover and click of buttons """
         x, y = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEMOTION:
             if self.rect.collidepoint(x, y):
@@ -90,10 +90,7 @@ def gameOver(scr, board, winner="Tie"):
 
     enter = fontEnter.render("Press Enter to exit", True, WHITE)
     enter_rect = enter.get_rect(center=(width/2, height*5/7))
-    #point = fontText.render("Pac-man got " + str(board.get_score()) + " out of
-    #    "\
-                             #+ str(MAX_SCORE) + " points" , True, WHITE)
-    #point_rect = point.get_rect(center=(width/2, 4*height/7))
+    
     text_bg = pygame.Rect(0, 0, width*4/5, height*3/10)
     text_bg.center = (width/2, height/2)
 

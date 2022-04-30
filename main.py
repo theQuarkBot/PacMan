@@ -51,6 +51,7 @@ def main():
 
 def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
               clock, lives, winner):
+    """ Main Game Loop """
     running = True
 
     def stop_characters():
@@ -115,7 +116,7 @@ def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
 
 def generate_characters(board, player_num, player_update_switch, 
                                             finished_updating):
-    # Make lists of threads and characters
+    """ Make lists of threads and characters """
     threads = []
     pacmans = []
     ghosts = []
