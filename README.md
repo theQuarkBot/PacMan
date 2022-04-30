@@ -3,6 +3,7 @@
 https://github.com/theQuarkBot/PacMan
 
 Overview of Code:
+
 Bin: Contains images that were used to represent the ghosts and pacman, 
 Also contains fonts used for our screens.
 
