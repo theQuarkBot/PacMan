@@ -1,5 +1,9 @@
 #!/usr/bin/python3
-import pygame
+try:
+    import pygame
+except:
+    print("Please install pygame before running!")
+    exit(1)
 import threading
 from thread_safe_classes import Lightswitch
 from settings import *
@@ -21,6 +25,7 @@ def main():
     pygame.mixer.init()
     pygame.mixer.music.load('bin/music/pacman.mp3')
     pygame.mixer.music.play(-1, 0.0)
+    pygame.mixer.music.set_volume(0.2)
 
     # Mutex and ligthswitch for update synchronization
     player_update_switch = Lightswitch()

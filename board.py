@@ -66,20 +66,18 @@ class Board():
         (top_left, bottom_left, top_right, bottom_right) = \
                                             self.get_corners(rect, 0.5)
         # Check if going down into gate
-
-        if self.get_block(top_left) == '-' \
-        or self.get_block(bottom_left) in '-' \
-        or self.get_block(top_right) == '-' \
-        or self.get_block(bottom_right) in '-':
+        if self.get_block(top_left) == '-'      or \
+           self.get_block(bottom_left) in '-'   or \
+           self.get_block(top_right) == '-'     or \
+           self.get_block(bottom_right) in '-':
             if dirc == 1:
                 return False
 
         # Check if colliding with wall
-
-        if self.get_block(top_left) == '%' \
-        or self.get_block(bottom_left) in '%' \
-        or self.get_block(top_right) == '%' \
-        or self.get_block(bottom_right) in '%':
+        if self.get_block(top_left) == '%'      or \
+           self.get_block(bottom_left) in '%'   or \
+           self.get_block(top_right) == '%'     or \
+           self.get_block(bottom_right) in '%':
             return False
         return True
 
@@ -88,46 +86,22 @@ class Board():
         offset = self.block_size/2
         (top_left, bottom_left, top_right, bottom_right) = \
                                 self.get_corners(rect, self.block_size/2)
+        corners = self.get_corners(rect, self.block_size/2)
 
-        # Remove pellet if going over pellet
+        def eat_a_pellet(corner, score_change):
+            self.put_block(corner, 'o')
+            self.pellet -= 1
+            self.score += score_change
 
-        if self.get_block(top_left) == 'a':
-            self.put_block(top_left, 'o')
-            self.pellet -= 1
-            self.score += 10
-        if self.get_block(bottom_left) == 'a':
-            self.put_block(bottom_left, 'o')
-            self.pellet -= 1
-            self.score += 10
-        if self.get_block(top_right) == 'a':
-            self.put_block(top_right, 'o')
-            self.pellet -= 1
-            self.score += 10
-        if self.get_block(bottom_right) == 'a':
-            self.put_block(bottom_right, 'o')
-            self.pellet -= 1
-            self.score += 10
-
-        if self.get_block(top_left) == 's':
-            self.all_ghosts_weak()
-            self.put_block(top_left, 'o')
-            self.pellet -= 1
-            self.score += 50
-        if self.get_block(bottom_left) == 's':
-            self.all_ghosts_weak()
-            self.put_block(bottom_left, 'o')
-            self.pellet -= 1
-            self.score += 50
-        if self.get_block(top_right) == 's':
-            self.all_ghosts_weak()
-            self.put_block(top_right, 'o')
-            self.pellet -= 1
-            self.score += 50
-        if self.get_block(bottom_right) == 's':
-            self.all_ghosts_weak()
-            self.put_block(bottom_right, 'o')
-            self.pellet -= 1
-            self.score += 50
+        for corner in corners:
+            block = self.get_block(corner)
+            if block == 'a':
+                eat_a_pellet(corner, 10)
+                break
+            elif block == 's':
+                eat_a_pellet(corner, 50)
+                self.all_ghosts_weak()
+                break
 
     def get_corners(self, rect, offset):
         """ Helper function for the check functions, get the block of the 
