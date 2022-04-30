@@ -113,7 +113,8 @@ def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
     return winner
 
 
-def generate_characters(board, player_num, player_update_switch, finished_updating):
+def generate_characters(board, player_num, player_update_switch, 
+                                            finished_updating):
     # Make lists of threads and characters
     threads = []
     pacmans = []

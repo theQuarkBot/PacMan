@@ -80,13 +80,15 @@ def gameOver(scr, board, winner="Tie"):
         win = fontText.render("It's a tie!", True, PELLET_COLOR)
     win_rect = win.get_rect(center=(width/2, height*1/2))
 
-    score = fontText.render("Pacman Score: " + str(board.get_score()), True, RED)
+    score = fontText.render("Pacman Score: " + str(board.get_score()), 
+                                                                True, RED)
     score_rect = score.get_rect(center=(width/2, height*4/7))
 
 
     enter = fontEnter.render("Press Enter to exit", True, WHITE)
     enter_rect = enter.get_rect(center=(width/2, height*5/7))
-    #point = fontText.render("Pac-man got " + str(board.get_score()) + " out of "\
+    #point = fontText.render("Pac-man got " + str(board.get_score()) + " out of
+    #    "\
                              #+ str(MAX_SCORE) + " points" , True, WHITE)
     #point_rect = point.get_rect(center=(width/2, 4*height/7))
     text_bg = pygame.Rect(0, 0, width*4/5, height*3/10)

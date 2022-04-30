@@ -132,7 +132,8 @@ class Board():
             self.score += 50
 
     def get_corners(self, rect, offset):
-        """ Helper function for the check functions, get the block of the four corners """
+        """ Helper function for the check functions, get the block of the 
+                                                            four corners """
         top_left     = (int((rect.top    + offset) / self.block_size), \
                         int((rect.left   + offset) / self.block_size))
         bottom_left  = (int((rect.bottom - offset) / self.block_size), \

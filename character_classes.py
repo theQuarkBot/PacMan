@@ -236,7 +236,8 @@ class Ghost(Character):
                                 elif img.get_at((x,y)) == self.color:
                                     img.set_at((x,y), GHOST_WEAK)
                         self.images[i] = img
-                        self.anim[i] = pygame.transform.scale(img, self.sprite_dim)
+                        self.anim[i] = pygame.transform.scale(img, 
+                                                            self.sprite_dim)
 
             elif self.weak_time == 360:
                 self.weak = False
