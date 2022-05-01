@@ -76,11 +76,19 @@ def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
 
         # Check for any collisions; kill pacman or end game
         for ghost in ghosts:
+            ghost.mutex.acquire()
+            pacmans[0].mutex.acquire()
             if pygame.sprite.spritecollideany(pacmans[0], [ghost]):
                 if ghost.is_weak():
+                    ghost.mutex.release()
+                    pacmans[0].mutex.release()
+                    finished_updating.acquire()
+                    finished_updating.release()
                     ghost.reset()
                     board.add_score(200)
                 else:
+                    ghost.mutex.release()
+                    pacmans[0].mutex.release()
                     board.minus_lives()
                     lives -= 1
                     if lives == 0:
@@ -89,10 +97,15 @@ def game_loop(characters, ghosts, pacmans, board, finished_updating, screen,
                         stop_characters()
 
                     pygame.mixer.music.play(-1, 0.0)
-                    #Respawn characters
+                    # Respawn characters
+                    finished_updating.acquire()
+                    finished_updating.release()
                     pacmans[0].reset()
                     for ghost in ghosts:
                         ghost.reset()
+            else:
+                ghost.mutex.release()
+                pacmans[0].mutex.release()
             
         # Check for pacman win
         if board.check_if_no_pellet():

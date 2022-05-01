@@ -23,6 +23,7 @@ class Character(ABC):
         self.update_switch = update_switch
         self.finished_updating = finished_updating
         self.mutex = threading.Semaphore(1)
+        self.updating = threading.Semaphore(0)
 
         self.running = True
 
@@ -153,12 +154,16 @@ class Pacman(Character):
             self.__try_teleport_through_tunnel__(new_rect)
             can_move = self.board.check_wall(new_rect)
 
+        self.mutex.acquire()
+
         # Update position
         if can_move:
             self.board.check_pellet(new_rect)
             self.rect.topleft = new_rect.topleft
             self.imageC = self.animC[self.anim_frame]
             self.anim_frame = (self.anim_frame + 1) % 8
+
+        self.mutex.release()
 
         self.update_switch.unlock(self.finished_updating)
 
@@ -286,11 +291,15 @@ class Ghost(Character):
             self.__try_teleport_through_tunnel__(new_rect)
             can_move = self.board.check_wall(new_rect)
 
+        self.mutex.acquire()
+
         # Update position
         if can_move:
             self.rect.topleft = new_rect.topleft
             self.imageC = self.anim[self.anim_frame]
             self.anim_frame = (self.anim_frame + 1) % 6
+
+        self.mutex.release()
 
         self.update_switch.unlock(self.finished_updating)
 
@@ -331,13 +340,15 @@ class RandomGhost(Ghost):
             while self.next_move == old:
                 self.next_move = random.randint(0, 3)
 
+        self.mutex.acquire()
+
         # Update position
-        #if can_moveP:
-        #    self.rect.topleft = pot_rect.topleft
         if can_move:
             self.rect.topleft = new_rect.topleft
             self.imageC = self.anim[self.anim_frame]
             self.anim_frame = (self.anim_frame + 1) % 6
+
+        self.mutex.release()
 
         self.update_switch.unlock(self.finished_updating)
         
